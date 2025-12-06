@@ -1,0 +1,4475 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دفتر روزنامه ساده</title>
+    
+    <style>
+        /* استایل‌های اصلی */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tahoma', 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            min-height: 100vh;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            direction: rtl;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #e74c3c;
+            position: relative;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .current-time {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .save-status {
+            font-size: 0.9em;
+            color: #2ecc71;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        /* تنظیمات زبان در گوشه */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .language-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .language-button:hover {
+            background: white;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+            min-width: 120px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .language-dropdown.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: #f8f9fa;
+        }
+
+        .language-option.active {
+            background: #e3f2fd;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .settings-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #f39c12;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .settings-section.show {
+            display: block;
+        }
+
+        .settings-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-settings {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .page-controls {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .journal-container {
+            height: 380px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .journal-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 700px;
+        }
+
+        .journal-table th {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 14px 8px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid #4a6572;
+            font-size: 0.95em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .journal-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            font-size: 0.9em;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        /* تغییر رنگ سطرهای جدول - یک در میان */
+        .journal-table tr:nth-child(odd) {
+            background-color: white; /* سفید برای سطرهای فرد */
+        }
+
+        .journal-table tr:nth-child(even) {
+            background-color: #C0C0C0; /* طوسی (#C0C0C0) برای سطرهای زوج */
+        }
+
+        .journal-table tr:hover {
+            background-color: #e3f2fd !important;
+        }
+
+        .income {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .expense {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* خلاصه حساب‌های جدید - ردیف افقی */
+        .summary-horizontal {
+            display: flex;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-top: 2px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+            margin-top: 0;
+            margin-bottom: 20px;
+            direction: rtl;
+        }
+
+        .summary-column {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            margin: 0 5px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .summary-column h4 {
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: bold;
+            height: 20px;
+        }
+
+        .summary-column .amount {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .summary-column.income .amount {
+            color: #27ae60;
+        }
+
+        .summary-column.expense .amount {
+            color: #e74c3c;
+        }
+
+        .summary-column.balance .amount {
+            color: #3498db;
+        }
+
+        .controls {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .summary-section {
+            display: none;
+        }
+
+        .main-action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .management-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-operations {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+        }
+
+        .btn-reports {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn-backup {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+
+        .btn-restore {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        /* دکمه جدید برای پرینت */
+        .btn-print {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+        }
+
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .lock-container {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+        }
+
+        .password-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            font-size: 1.3em;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            direction: ltr;
+            letter-spacing: 5px;
+        }
+        
+        .password-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-password:hover {
+            color: #3498db;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .unlock-btn:hover {
+            background: linear-gradient(135deg, #219a52 0%, #1e8449 100%);
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 0.9em;
+            min-height: 20px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .description-input-wrapper {
+            position: relative;
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .dropdown-arrow:hover {
+            color: #3498db;
+        }
+
+        .dropdown-arrow.rotated {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            text-align: right;
+        }
+
+        .suggestion-item:hover {
+            background: #e3f2fd;
+        }
+
+        .suggestion-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .words-management, .categories-management {
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        .word-item, .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .word-item:hover, .category-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .word-text, .category-text {
+            flex: 1;
+            font-size: 0.9em;
+        }
+
+        .word-actions, .category-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-edit-word, .btn-edit-category {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .btn-delete-word, .btn-delete-category {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .file-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .file-input-label {
+            display: block;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1c6ea4 100%);
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .selected-file {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f4fd;
+            border-radius: 5px;
+            border: 1px solid #3498db;
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, #ffffff 0%, #e8f5e8 100%);
+            padding: 18px;
+            border-radius: 8px;
+            border: 2px solid #27ae60;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-section.show {
+            display: block;
+        }
+
+        .search-input-group {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .search-summary {
+            background: #d1f2e8;
+            border: 1px solid #27ae60;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .search-summary h4 {
+            color: #27ae60;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .backup-section {
+            background: linear-gradient(135deg, #ffffff 0%, #e8f4fd 100%);
+            padding: 18px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .backup-section.show {
+            display: block;
+        }
+
+        .backup-section h3 {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+
+        .backup-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .date-format-selector {
+            background: linear-gradient(135deg, #ffffff 0%, #e8f4fd 100%);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            margin-bottom: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .date-format-selector:hover {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1e7f9 100%);
+            transform: translateY(-3px);
+        }
+
+        .date-format-selector h3 {
+            font-size: 1em;
+            margin-bottom: 0;
+            color: #2c3e50;
+        }
+
+        /* بخش انتخاب واحد پول */
+        .currency-selector {
+            background: linear-gradient(135deg, #ffffff 0%, #e8f4fd 100%);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            margin-bottom: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .currency-selector:hover {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1e7f9 100%);
+            transform: translateY(-3px);
+        }
+
+        .currency-selector h3 {
+            font-size: 1em;
+            margin-bottom: 0;
+            color: #2c3e50;
+        }
+
+        /* استایل‌های مربوط به گزارش‌ها */
+        .reports-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .tab-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .report-tab {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* استایل برای دکمه‌های ویرایش و حذف در جدول */
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* استایل‌های مربوط به ویرایش با ستاره */
+        .correction-star {
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 1.2em;
+            color: #f39c12;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .correction-star:hover {
+            transform: scale(1.2);
+            color: #e67e22;
+        }
+
+        .original-record {
+            display: none;
+            background: #ffeaea;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin-top: 6px;
+            font-size: 0.85em;
+            color: #c0392b;
+            text-align: right;
+            direction: rtl;
+            position: relative;
+            z-index: 1;
+        }
+
+        .original-record.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .corrected-record {
+            background: #fff9e6 !important;
+            position: relative;
+        }
+
+        .corrected-record:hover {
+            background: #fff3cd !important;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 18px;
+            border-radius: 10px 10px 0 0;
+            margin: -25px -25px 20px -25px;
+            text-align: center;
+        }
+
+        .hidden-buttons {
+            display: none;
+        }
+
+        .hidden-buttons.show {
+            display: grid;
+        }
+
+        .exit-confirm {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffd700;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* استایل‌های چاپ */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .journal-container,
+            .journal-container *,
+            .summary-horizontal,
+            .summary-horizontal * {
+                visibility: visible;
+            }
+            
+            .journal-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                overflow: visible;
+                background: white;
+            }
+            
+            .journal-table {
+                box-shadow: none;
+                border: 2px solid #000;
+            }
+            
+            .journal-table th {
+                background: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            button, .page-controls, .header, .controls, .date-format-selector,
+            .currency-selector, .management-buttons {
+                display: none !important;
+            }
+        }
+
+        .hidden-buttons {
+            display: none;
+        }
+
+        .hidden-buttons.show {
+            display: grid;
+        }
+
+        .exit-confirm {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffd700;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* نوتیفیکیشن */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            color: white;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-success {
+            background: #27ae60;
+        }
+
+        .notification-error {
+            background: #e74c3c;
+        }
+
+        .notification-info {
+            background: #3498db;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+        }
+
+        /* بهبود برای مرورگرهای قدیمی */
+        .summary-section > * {
+            float: right;
+            width: 32%;
+            margin: 0 1%;
+        }
+
+        .summary-section:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        @media (max-width: 768px) {
+            .journal-container {
+                height: 350px;
+            }
+            
+            .summary-horizontal {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .summary-column {
+                margin: 0;
+            }
+            
+            .language-selector {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 15px;
+                align-self: flex-start;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .backup-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .search-input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .word-item, .category-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .word-actions, .category-actions {
+                align-self: flex-end;
+            }
+
+            .header-info {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .management-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .reports-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه قفل -->
+    <div id="lockScreen" class="lock-screen">
+        <div class="lock-container">
+            <div style="font-size: 3.5em; margin-bottom: 20px; color: #3498db;">🔒</div>
+            <div style="font-size: 1.6em; margin-bottom: 10px; color: #2c3e50; font-weight: bold;" id="lockScreenTitle">دفتر روزنامه قفل شده</div>
+            <div style="color: #7f8c8d; margin-bottom: 20px; font-size: 1.1em;" id="enterPasswordText">برای دسترسی، رمز عبور را وارد کنید</div>
+            
+            <div class="password-container">
+                <input type="password" id="passwordInput" class="password-input" placeholder="رمز عبور (4 رقمی)" maxlength="4" onkeypress="handlePasswordEnter(event)" aria-label="رمز عبور ۴ رقمی">
+                <button type="button" class="toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility()" aria-label="نمایش/مخفی کردن رمز عبور">
+                    👁️
+                </button>
+            </div>
+            
+            <button class="unlock-btn" onclick="unlockJournal()" id="unlockBtn" aria-label="باز کردن قفل دفتر">🔓 باز کردن قفل</button>
+            <div id="errorMessage" class="error-message" role="alert"></div>
+            <div style="margin-top: 20px; font-size: 0.85em; color: #7f8c8d; background: #f8f9fa; padding: 10px; border-radius: 5px;" id="passwordTip">
+                💡 اگر اولین بار است از برنامه استفاده می‌کنید، رمز پیش‌فرض 0000 را وارد کنید
+            </div>
+        </div>
+    </div>
+
+    <!-- محتوای اصلی -->
+    <div class="container" id="mainContent" style="display: none;">
+        <!-- دکمه زبان در گوشه بالا سمت چپ -->
+        <div class="language-selector">
+            <button class="language-button" onclick="toggleLanguageDropdown()" aria-label="تغییر زبان" aria-expanded="false" aria-controls="languageDropdown">
+                <span>🌐</span>
+                <span id="currentLangDisplay">فارسی</span>
+                <span>▼</span>
+            </button>
+            <div class="language-dropdown" id="languageDropdown" role="menu">
+                <div class="language-option" onclick="changeLanguage('fa')" role="menuitem" tabindex="0">
+                    <span>🇮🇷</span> فارسی
+                </div>
+                <div class="language-option" onclick="changeLanguage('en')" role="menuitem" tabindex="0">
+                    <span>🇬🇧</span> English
+                </div>
+                <div class="language-option" onclick="changeLanguage('ku')" role="menuitem" tabindex="0">
+                    <span>🇮🇶</span> کوردی
+                </div>
+                <div class="language-option" onclick="changeLanguage('ar')" role="menuitem" tabindex="0">
+                    <span>🇸🇦</span> عربی
+                </div>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1 id="journalTitle">دفتر روزنامه ساده</h1>
+            <p id="journalSubtitle" style="opacity: 0.9; margin-top: 5px;">ثبت درآمد و هزینه‌های روزانه</p>
+            <div class="header-info">
+                <div class="current-time" id="currentTime" aria-live="polite"></div>
+                <div id="todayText">
+                    📅 امروز: <span id="todayDate"></span>
+                </div>
+            </div>
+            <div class="save-status" id="saveStatus" aria-live="polite">
+                💾 همه تغییرات ذخیره شد
+            </div>
+        </div>
+
+        <div class="page-controls">
+            <div class="page-info" id="pageInfo">
+                صفحه: <span id="currentPage">1</span> از <span id="totalPages">1</span>
+            </div>
+            <div class="page-nav">
+                <button onclick="changePage(-1)" id="prevPageBtn" aria-label="صفحه قبل">⏪ صفحه قبل</button>
+                <button class="btn-edit" onclick="showEditModal()" id="addRecordBtn" aria-label="افزودن رکورد جدید">➕ افزودن</button>
+                <button class="btn-search" onclick="toggleSearch()" id="searchBtn" aria-label="جستجو در دفتر">🔍 جستجو</button>
+                <button onclick="changePage(1)" id="nextPageBtn" aria-label="صفحه بعد">صفحه بعد ⏩</button>
+            </div>
+        </div>
+
+        <!-- بخش جستجو -->
+        <div id="searchSection" class="search-section">
+            <h3 id="searchTitle">🔍 جستجو در دفتر روزنامه</h3>
+            <div class="search-input-group">
+                <div class="form-group">
+                    <label for="searchQuery" id="searchLabel">عبارت جستجو:</label>
+                    <input type="text" id="searchQuery" placeholder="متن مورد نظر برای جستجو..." aria-label="عبارت جستجو">
+                </div>
+                <button class="btn-search" onclick="performSearch()" id="executeSearchBtn" aria-label="اجرای جستجو">🔍 اجرای جستجو</button>
+            </div>
+            <div id="searchResults" style="margin-top: 10px;" aria-live="polite"></div>
+        </div>
+
+        <div class="journal-container">
+            <table class="journal-table" aria-label="جدول دفتر روزنامه">
+                <thead>
+                    <tr>
+                        <th width="5%" id="rowHeader">ردیف</th>
+                        <th width="8%" id="dateHeader">تاریخ</th>
+                        <th width="32%" id="descriptionHeader">شرح</th>
+                        <th width="15%" id="paymentHeader">پرداخت</th>
+                        <th width="15%" id="receiptHeader">دریافت</th>
+                        <th width="10%" id="categoryHeader">دسته‌بندی</th>
+                        <th width="15%" id="editHeader">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="journalBody">
+                    <!-- رکوردها به صورت پویا اضافه می‌شوند -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- خلاصه حساب‌ها - ردیف افقی جدید -->
+        <div class="summary-horizontal" id="horizontalSummary" aria-label="خلاصه حساب‌ها">
+            <div class="summary-column expense">
+                <h4 id="horizontalExpenseTitle">جمع پرداخت‌ها</h4>
+                <div class="amount" id="horizontalExpense">۰ تومان</div>
+            </div>
+            <div class="summary-column income">
+                <h4 id="horizontalIncomeTitle">جمع دریافت‌ها</h4>
+                <div class="amount" id="horizontalIncome">۰ تومان</div>
+            </div>
+            <div class="summary-column balance">
+                <h4 id="horizontalBalanceTitle">مانده حساب</h4>
+                <div class="amount" id="horizontalBalance">۰ تومان</div>
+            </div>
+        </div>
+
+        <!-- بخش انتخاب نوع تاریخ -->
+        <div class="date-format-selector" onclick="toggleDateFormat()" role="button" tabindex="0" aria-label="تغییر فرمت تاریخ">
+            <h3 id="dateFormatDisplay">📅 فرمت تاریخ: شمسی</h3>
+        </div>
+
+        <!-- بخش انتخاب واحد پول -->
+        <div class="currency-selector" onclick="toggleCurrencySettings()" role="button" tabindex="0" aria-label="تغییر واحد پول">
+            <h3 id="currencyDisplay">💱 واحد پول: تومان</h3>
+        </div>
+
+        <!-- دکمه‌های مدیریت اصلی -->
+        <div class="management-buttons">
+            <button class="btn-settings" onclick="toggleSection('settingsSection')" id="settingsBtn" aria-label="تنظیمات برنامه">⚙️ تنظیمات برنامه</button>
+            <button class="btn-backup" onclick="toggleSection('backupSection')" id="backupBtn" aria-label="مدیریت پشتیبان">📦 مدیریت پشتیبان</button>
+            <button class="btn-print" onclick="printJournal()" id="printBtn" aria-label="چاپ دفتر روزنامه">🖨️ چاپ دفتر</button>
+        </div>
+
+        <!-- بخش تنظیمات -->
+        <div id="settingsSection" class="settings-section">
+            <h3>⚙️ تنظیمات برنامه</h3>
+
+            <div class="settings-buttons">
+                <button class="btn-settings" onclick="showJournalNameSettings()" id="changeNameBtn" aria-label="تغییر نام دفتر">📝 تغییر نام دفتر</button>
+                <button class="btn-settings" onclick="showPasswordSettings()" id="changePasswordBtn" aria-label="تغییر رمز عبور">🔐 تغییر رمز عبور</button>
+                <button class="btn-settings" onclick="showCurrencySettings()" id="changeCurrencyBtn" aria-label="تغییر واحد پول">💱 تغییر واحد پول</button>
+            </div>
+        </div>
+
+        <!-- بخش پشتیبان‌گیری (ادغام شده با انتقال داده) -->
+        <div id="backupSection" class="backup-section">
+            <h3>📦 مدیریت پشتیبان‌گیری و انتقال داده</h3>
+            <div class="backup-buttons">
+                <button class="btn-backup" onclick="createCompleteBackup()" id="createBackupBtn" aria-label="ذخیره پشتیبان کامل">💾 ذخیره پشتیبان (JSON)</button>
+                <button class="btn-restore" onclick="showRestoreModal()" id="restoreBackupBtn" aria-label="بازگردانی پشتیبان">📂 بازگردانی پشتیبان</button>
+                <button class="btn-excel" onclick="exportToExcel()" id="exportExcelBtn" aria-label="خروجی اکسل">📊 خروجی Excel</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="main-action-buttons">
+                <button class="btn-operations" onclick="toggleOperationsButtons()" id="operationsBtn" aria-label="عملیات پایه دفتر" aria-expanded="false">⚙️ عملیات پایه دفتر</button>
+                
+                <!-- دکمه‌های مخفی شده -->
+                <div id="operationsButtons" class="hidden-buttons">
+                    <div class="action-buttons">
+                        <button class="btn-reports" onclick="showReportsModal()" id="reportsBtn" aria-label="گزارش‌های نموداری">📊 گزارش‌های نموداری</button>
+                        <button class="btn-danger" onclick="showDeleteOptions()" id="deleteBtn" aria-label="مدیریت حذف">🗑️ مدیریت حذف</button>
+                        <button class="btn-edit" onclick="showWordsManager()" id="wordsBtn" aria-label="مدیریت کلمات آماده">📝 مدیریت کلمات آماده</button>
+                        <button class="btn-edit" onclick="showCategoriesManager()" id="categoriesBtn" aria-label="مدیریت دسته‌بندی‌ها">🏷️ مدیریت دسته‌بندی‌ها</button>
+                    </div>
+                    <div class="exit-confirm">
+                        <button class="btn-danger" onclick="confirmExit()" id="closeSaveBtn" aria-label="بستن و ذخیره برنامه">⚠️ بستن و ذخیره برنامه</button>
+                        <div id="exitMessage" style="margin-top: 5px; font-size: 0.8em; color: #666;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال ویرایش (برای افزودن رکورد جدید) -->
+    <div id="editModal" class="modal" role="dialog" aria-label="افزودن رکورد جدید" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="editModalTitle">✏️ افزودن رکورد جدید</h2>
+            </div>
+            <div class="form-group">
+                <label for="editDate" id="dateLabel">تاریخ</label>
+                <input type="text" id="editDate" placeholder="YYYY-MM-DD" aria-label="تاریخ">
+            </div>
+            <div class="form-group">
+                <label for="editDescription" id="descriptionLabel">شرح</label>
+                <div class="autocomplete-container">
+                    <div class="description-input-wrapper">
+                        <input type="text" id="editDescription" placeholder="شرح معامله..." autocomplete="off" style="padding-right: 35px;" aria-label="شرح معامله">
+                        <div class="dropdown-arrow" onclick="toggleSuggestions()" role="button" aria-label="نمایش پیشنهادات">▼</div>
+                    </div>
+                    <div class="autocomplete-suggestions" id="descriptionSuggestions" role="listbox"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editType" id="typeLabel">نوع</label>
+                <select id="editType" aria-label="نوع معامله">
+                    <option value="income">دریافت</option>
+                    <option value="expense">پرداخت</option>
+                    <option value="debt">طلب از دیگران</option>
+                    <option value="credit">بدهی به دیگران</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editAmount" id="amountLabel">مبلغ (تومان)</label>
+                <input type="number" id="editAmount" placeholder="0" min="0" aria-label="مبلغ">
+            </div>
+            <div class="form-group">
+                <label for="editCategory" id="categoryLabel">دسته‌بندی</label>
+                <select id="editCategory" aria-label="دسته‌بندی">
+                    <!-- دسته‌بندی‌ها به صورت پویا اضافه می‌شوند -->
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="addNewEntry()" id="addRecordModalBtn" aria-label="افزودن رکورد">💾 افزودن رکورد</button>
+                <button class="btn-cancel" onclick="hideEditModal()" id="cancelBtn" aria-label="انصراف">❌ انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال مدیریت کلمات آماده -->
+    <div id="wordsManagerModal" class="modal" role="dialog" aria-label="مدیریت کلمات آماده" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="wordsManagerTitle">📝 مدیریت کلمات آماده</h2>
+            </div>
+            <div class="form-group">
+                <label for="newWord" id="newWordLabel">کلمه جدید:</label>
+                <input type="text" id="newWord" placeholder="کلمه جدید را وارد کنید..." aria-label="کلمه جدید">
+            </div>
+            <button class="btn-save" onclick="addNewWord()" id="addWordBtn" aria-label="افزودن کلمه">➕ افزودن کلمه</button>
+            
+            <div class="words-management">
+                <h4 id="existingWordsTitle">کلمات موجود:</h4>
+                <div id="wordsList"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="hideWordsManager()" id="closeWordsBtn" aria-label="بستن">❌ بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال مدیریت دسته‌بندی‌ها -->
+    <div id="categoriesManagerModal" class="modal" role="dialog" aria-label="مدیریت دسته‌بندی‌ها" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="categoriesManagerTitle">🏷️ مدیریت دسته‌بندی‌ها</h2>
+            </div>
+            <div class="form-group">
+                <label for="newCategory" id="newCategoryLabel">دسته‌بندی جدید:</label>
+                <input type="text" id="newCategory" placeholder="نام دسته‌بندی جدید..." aria-label="دسته‌بندی جدید">
+            </div>
+            <button class="btn-save" onclick="addNewCategory()" id="addCategoryBtn" aria-label="افزودن دسته‌بندی">➕ افزودن دسته‌بندی</button>
+            
+            <div class="categories-management">
+                <h4 id="existingCategoriesTitle">دسته‌بندی‌های موجود:</h4>
+                <div id="categoriesList"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="hideCategoriesManager()" id="closeCategoriesBtn" aria-label="بستن">❌ بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تنظیمات واحد پول -->
+    <div id="currencySettingsModal" class="modal" role="dialog" aria-label="تنظیم واحد پول" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💱 تنظیم واحد پول</h2>
+            </div>
+            <div class="form-group">
+                <label for="currencySelect">انتخاب واحد پول:</label>
+                <select id="currencySelect" onchange="updateCurrencyPreview()" aria-label="انتخاب واحد پول">
+                    <option value="toman">تومان (IRR)</option>
+                    <option value="dollar">دلار آمریکا (USD)</option>
+                    <option value="euro">یورو (EUR)</option>
+                    <option value="dirham">درهم امارات (AED)</option>
+                    <option value="dinar">دینار عراق (IQD)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="currencyRate">نرخ تبدیل (به تومان):</label>
+                <input type="number" id="currencyRate" placeholder="مثلاً 50000 برای دلار" min="1" oninput="updateCurrencyPreview()" aria-label="نرخ تبدیل به تومان">
+            </div>
+            <div class="preview-section" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <h4>پیش‌نمایش:</h4>
+                <p id="currencyPreview" aria-live="polite">100,000 تومان = 2 دلار</p>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="saveCurrencySettings()" aria-label="ذخیره واحد پول">💾 ذخیره واحد پول</button>
+                <button class="btn-cancel" onclick="hideCurrencySettings()" aria-label="انصراف">❌ انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال پشتیبان‌گیری -->
+    <div id="restoreModal" class="modal" role="dialog" aria-label="بازگردانی پشتیبان" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="restoreModalTitle">📂 بازگردانی پشتیبان کامل</h2>
+            </div>
+            <div class="form-group">
+                <label id="selectBackupLabel">انتخاب فایل پشتیبان:</label>
+                <div class="file-input-container">
+                    <label class="file-input-label" id="selectBackupFileLabel">
+                        📁 انتخاب فایل پشتیبان
+                        <input type="file" id="backupFileInput" class="file-input" accept=".json" onchange="handleFileSelect(this.files)" aria-label="انتخاب فایل پشتیبان">
+                    </label>
+                </div>
+                <div id="selectedFileInfo" class="selected-file" style="display: none;">
+                    فایل انتخاب شده: <span id="fileName"></span>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-restore" onclick="restoreCompleteBackup()" id="restoreBackupBtn" aria-label="بازگردانی کامل">🔄 بازگردانی کامل</button>
+                <button onclick="hideRestoreModal()" id="cancelRestoreBtn" aria-label="انصراف">❌ انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="journalNameModal" class="modal" role="dialog" aria-label="تنظیم نام دفتر" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="journalNameModalTitle">📝 تنظیم نام دفتر روزنامه</h2>
+            </div>
+            <div class="form-group">
+                <label for="journalNameInput" id="journalNameLabel">نام دفتر:</label>
+                <input type="text" id="journalNameInput" placeholder="نام دلخواه برای دفتر روزنامه..." aria-label="نام دفتر">
+            </div>
+            <div class="form-group">
+                <label for="journalSubtitleInput" id="journalSubtitleLabel">توضیح مختصر:</label>
+                <input type="text" id="journalSubtitleInput" placeholder="توضیح درباره دفتر روزنامه..." aria-label="توضیح مختصر">
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="saveJournalName()" id="saveJournalNameBtn" aria-label="ذخیره نام">💾 ذخیره نام</button>
+                <button class="btn-cancel" onclick="hideJournalNameSettings()" id="cancelJournalNameBtn" aria-label="انصراف">❌ انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordSettingsModal" class="modal" role="dialog" aria-label="تنظیم رمز عبور" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="passwordSettingsTitle">🔐 تنظیم رمز عبور</h2>
+            </div>
+            <div class="form-group">
+                <label for="currentPasswordInput" id="currentPasswordLabel">رمز عبور فعلی:</label>
+                <input type="password" id="currentPasswordInput" placeholder="رمز فعلی (اگر وجود دارد)" maxlength="4" aria-label="رمز عبور فعلی">
+            </div>
+            <div class="form-group">
+                <label for="newPasswordInput" id="newPasswordLabel">رمز عبور جدید (4 رقمی):</label>
+                <input type="password" id="newPasswordInput" placeholder="رمز جدید 4 رقمی" maxlength="4" aria-label="رمز عبور جدید">
+            </div>
+            <div class="form-group">
+                <label for="confirmPasswordInput" id="confirmPasswordLabel">تکرار رمز عبور جدید:</label>
+                <input type="password" id="confirmPasswordInput" placeholder="تکرار رمز جدید" maxlength="4" aria-label="تکرار رمز عبور جدید">
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="saveNewPassword()" id="savePasswordBtn" aria-label="ذخیره رمز">💾 ذخیره رمز</button>
+                <button class="btn-cancel" onclick="hidePasswordSettings()" id="cancelPasswordBtn" aria-label="انصراف">❌ انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== متغیرهای اصلی برنامه ====================
+        const DATA_VERSION = '3.0';
+        const PERSIAN_NUMBERS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        const ARABIC_NUMBERS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+        let entries = [];
+        let currentRow = 1;
+        let currentPage = 1;
+        const recordsPerPage = 10;
+        let dateFormat = localStorage.getItem('journalDateFormat') || 'jalali';
+        let searchResults = [];
+        let currentSearchQuery = '';
+        let journalName = localStorage.getItem('journalName') || 'دفتر روزنامه ساده';
+        let journalSubtitle = localStorage.getItem('journalSubtitle') || 'ثبت درآمد و هزینه‌های روزانه';
+        
+        // سیستم واحد پول
+        let currency = localStorage.getItem('journalCurrency') || 'toman';
+        let currencyRates = JSON.parse(localStorage.getItem('currencyRates')) || {
+            'toman': { symbol: 'تومان', rate: 1, decimals: 0 },
+            'dollar': { symbol: 'دلار', rate: 50000, decimals: 2 },
+            'euro': { symbol: 'یورو', rate: 55000, decimals: 2 },
+            'dirham': { symbol: 'درهم', rate: 13600, decimals: 0 },
+            'dinar': { symbol: 'دینار', rate: 160000, decimals: 0 }
+        };
+        
+        // سیستم ویرایش با علامت ستاره
+        let entryHistory = {};
+        
+        let suggestedWords = [];
+        let defaultWordsByLang = {
+            fa: [
+                'یدکی', 'اجاره', 'قسط', 'شهریه', 'آبونمان', 'شارژ آپارتمان', 
+                'خرید شارژ تلفن', 'قبض برق', 'قبض گاز', 'قبض تلفن', 'خواربار',
+                'بنزین', 'تعمیرات', 'پزشک', 'دارو', 'لباس', 'کفش', 'میوه',
+                'سبزی', 'نان', 'گوشت', 'مرغ', 'ماهی', 'حمل', 'تاکسی', 'اتوبوس'
+            ],
+            en: [
+                'Spare parts', 'Rent', 'Installment', 'Tuition', 'Subscription', 'Apartment charge',
+                'Phone recharge', 'Electricity bill', 'Gas bill', 'Phone bill', 'Groceries',
+                'Gasoline', 'Repairs', 'Doctor', 'Medicine', 'Clothes', 'Shoes', 'Fruit',
+                'Vegetables', 'Bread', 'Meat', 'Chicken', 'Fish', 'Transport', 'Taxi', 'Bus'
+            ],
+            ku: [
+                'پارچەی بەکارھاتوو', 'ئەجاره', 'قسط', 'خوێندن', 'پشتبەستن', 'پارەی ئەپارتمان',
+                'کردنەوەی تەلەفۆن', 'پارەی کارەبا', 'پارەی گاز', 'پارەی تەلەفۆن', 'خواردن',
+                'بەنزین', 'چاککردن', 'دکتۆر', 'دەرمان', 'جلوبەرگ', 'پێڵاو', 'میوە',
+                'سەوزە', 'نان', 'گووشت', 'مێروو', 'ماسی', 'گواستنەوە', 'تاکسی', 'ئۆتۆبوس'
+            ],
+            ar: [
+                'قطع غيار', 'إيجار', 'قسط', 'رسوم دراسية', 'اشتراك', 'شحن الشقة',
+                'شحن الهاتف', 'فاتورة الكهرباء', 'فاتورة الغاز', 'فاتورة الهاتف', 'بقالة',
+                'بنزين', 'إصلاحات', 'طبيب', 'دواء', 'ملابس', 'أحذية', 'فواكه',
+                'خضروات', 'خبز', 'لحوم', 'دجاج', 'سمك', 'نقل', 'تاكسي', 'حافلة'
+            ]
+        };
+        
+        let categories = [];
+        let defaultCategoriesByLang = {
+            fa: ['عمومی', 'خوراک', 'حمل‌ونقل', 'پوشاک', 'مسکن', 'سلامت', 'سرگرمی', 'حقوق', 'فروش', 'سایر'],
+            en: ['General', 'Food', 'Transport', 'Clothing', 'Housing', 'Health', 'Entertainment', 'Salary', 'Sales', 'Other'],
+            ku: ['گشتی', 'خۆراک', 'گواستنەوە', 'جلوبەرگ', 'مانگە', 'تەندروستی', 'گەمی', 'موچە', 'فرۆشتن', 'هی تر'],
+            ar: ['عام', 'طعام', 'نقل', 'ملابس', 'سكن', 'صحة', 'ترفيه', 'راتب', 'مبيعات', 'أخرى']
+        };
+        
+        let currentSuggestions = [];
+        let selectedSuggestionIndex = -1;
+        let selectedBackupFile = null;
+        let saveTimeout = null;
+        let editingEntryRow = null;
+
+        // ==================== سیستم چندزبانه ====================
+        const translations = {
+            fa: {
+                "journalTitle": "دفتر روزنامه ساده",
+                "journalSubtitle": "ثبت درآمد و هزینه‌های روزانه",
+                "lockedTitle": "دفتر روزنامه قفل شده",
+                "enterPassword": "برای دسترسی، رمز عبور را وارد کنید",
+                "passwordPlaceholder": "رمز عبور (4 رقمی)",
+                "unlockButton": "🔓 باز کردن قفل",
+                "passwordTip": "💡 اگر اولین بار است از برنامه استفاده می‌کنید، رمز پیش‌فرض 0000 را وارد کنید",
+                "page": "صفحه",
+                "of": "از",
+                "add": "➕ افزودن",
+                "search": "🔍 جستجو",
+                "previousPage": "⏪ صفحه قبل",
+                "nextPage": "صفحه بعد ⏩",
+                "searchInJournal": "🔍 جستجو در دفتر روزنامه",
+                "searchTerm": "عبارت جستجو:",
+                "searchPlaceholder": "متن مورد نظر برای جستجو...",
+                "executeSearch": "🔍 اجرای جستجو",
+                "date": "تاریخ",
+                "row": "ردیف",
+                "description": "شرح",
+                "payment": "پرداخت",
+                "receipt": "دریافت",
+                "category": "دسته‌بندی",
+                "edit": "ویرایش",
+                "totalPayments": "جمع پرداخت‌ها",
+                "totalReceipts": "جمع دریافت‌ها",
+                "accountBalance": "مانده حساب",
+                "currency": "تومان",
+                "today": "امروز",
+                "dateFormat": "📅 فرمت تاریخ: شمسی",
+                "gregorianDateFormat": "📅 فرمت تاریخ: میلادی",
+                "currencyFormat": "💱 واحد پول: تومان",
+                "programSettings": "⚙️ تنظیمات برنامه",
+                "backupManagement": "📦 مدیریت پشتیبان",
+                "printJournal": "🖨️ چاپ دفتر",
+                "basicOperations": "⚙️ عملیات پایه دفتر",
+                "reports": "📊 گزارش‌های نموداری",
+                "deleteManagement": "🗑️ مدیریت حذف",
+                "wordsManagement": "📝 مدیریت کلمات آماده",
+                "categoriesManagement": "🏷️ مدیریت دسته‌بندی‌ها",
+                "closeSave": "⚠️ بستن و ذخیره برنامه",
+                "addNewRecord": "✏️ افزودن رکورد جدید",
+                "editRecord": "✏️ ویرایش رکورد",
+                "type": "نوع",
+                "amount": "مبلغ",
+                "addRecord": "💾 افزودن رکورد",
+                "saveRecord": "💾 ذخیره تغییرات",
+                "cancel": "❌ انصراف",
+                "income": "دریافت",
+                "expense": "پرداخت",
+                "debt": "طلب از دیگران",
+                "credit": "بدهی به دیگران",
+                "allChangesSaved": "💾 همه تغییرات ذخیره شد",
+                "dataSaved": "✅ داده‌ها با موفقیت ذخیره شدند",
+                "recordAdded": "✅ یادداشت جدید با موفقیت ثبت شد",
+                "recordEdited": "✅ رکورد با موفقیت ویرایش شد",
+                "recordDeleted": "✅ رکورد حذف شد",
+                "searchResults": "📊 نتایج جستجو",
+                "close": "❌ بستن",
+                "printResults": "🖨️ چاپ نتایج",
+                "saveResults": "💾 ذخیره نتایج",
+                "exportExcel": "📤 خروجی اکسل",
+                "wordsManager": "📝 مدیریت کلمات آماده",
+                "newWord": "کلمه جدید:",
+                "newWordPlaceholder": "کلمه جدید را وارد کنید...",
+                "addWord": "➕ افزودن کلمه",
+                "existingWords": "کلمات موجود:",
+                "closeWords": "❌ بستن",
+                "editWord": "✏️ ویرایش",
+                "deleteWord": "🗑️ حذف",
+                "saveWord": "💾 ذخیره",
+                "cancelEdit": "❌ انصراف",
+                "categoriesManager": "🏷️ مدیریت دسته‌بندی‌ها",
+                "newCategory": "دسته‌بندی جدید:",
+                "newCategoryPlaceholder": "نام دسته‌بندی جدید...",
+                "addCategory": "➕ افزودن دسته‌بندی",
+                "existingCategories": "دسته‌بندی‌های موجود:",
+                "closeCategories": "❌ بستن",
+                "editCategory": "✏️ ویرایش",
+                "deleteCategory": "🗑️ حذف",
+                "saveCategory": "💾 ذخیره",
+                "restoreBackup": "📂 بازگردانی پشتیبان کامل",
+                "selectBackup": "انتخاب فایل پشتیبان:",
+                "selectBackupFile": "📁 انتخاب فایل پشتیبان",
+                "restoreComplete": "🔄 بازگردانی کامل",
+                "cancelRestore": "❌ انصراف",
+                "journalNameSettings": "📝 تنظیم نام دفتر روزنامه",
+                "journalName": "نام دفتر:",
+                "journalSubtitle": "توضیح مختصر:",
+                "saveName": "💾 ذخیره نام",
+                "passwordSettings": "🔐 تنظیم رمز عبور",
+                "currentPassword": "رمز عبور فعلی:",
+                "newPassword": "رمز عبور جدید (4 رقمی):",
+                "confirmPassword": "تکرار رمز عبور جدید:",
+                "savePassword": "💾 ذخیره رمز",
+                "currencySettings": "💱 تنظیم واحد پول",
+                "saveCurrency": "💾 ذخیره واحد پول",
+                "noRecords": "هیچ رکوردی ثبت نشده است",
+                "noResults": "هیچ نتیجه‌ای یافت نشد",
+                "resultsFound": "نتیجه یافت شد",
+                "deleteConfirm": "آیا از حذف این مورد اطمینان دارید؟",
+                "wordAdded": "✅ کلمه با موفقیت اضافه شد",
+                "wordEdited": "✅ کلمه با موفقیت ویرایش شد",
+                "wordDeleted": "✅ کلمه با موفقیت حذف شد",
+                "categoryAdded": "✅ دسته‌بندی با موفقیت اضافه شد",
+                "categoryEdited": "✅ دسته‌بندی با موفقیت ویرایش شد",
+                "categoryDeleted": "✅ دسته‌بندی با موفقیت حذف شد",
+                "currencyChanged": "✅ واحد پول تغییر کرد",
+                "printSuccess": "✅ چاپ با موفقیت انجام شد",
+                "exportExcelSuccess": "✅ خروجی اکسل با موفقیت ایجاد شد"
+            },
+            en: {
+                "journalTitle": "Simple Journal",
+                "journalSubtitle": "Record daily income and expenses",
+                "lockedTitle": "Journal Locked",
+                "enterPassword": "Enter password to access",
+                "passwordPlaceholder": "Password (4 digits)",
+                "unlockButton": "🔓 Unlock",
+                "passwordTip": "💡 If this is your first time, use default password 0000",
+                "page": "Page",
+                "of": "of",
+                "add": "➕ Add",
+                "search": "🔍 Search",
+                "previousPage": "⏪ Previous",
+                "nextPage": "Next ⏩",
+                "searchInJournal": "🔍 Search in Journal",
+                "searchTerm": "Search term:",
+                "searchPlaceholder": "Text to search for...",
+                "executeSearch": "🔍 Search",
+                "date": "Date",
+                "row": "Row",
+                "description": "Description",
+                "payment": "Payment",
+                "receipt": "Receipt",
+                "category": "Category",
+                "edit": "Edit",
+                "totalPayments": "Total Payments",
+                "totalReceipts": "Total Receipts",
+                "accountBalance": "Balance",
+                "currency": "Toman",
+                "today": "Today",
+                "dateFormat": "📅 Date Format: Solar",
+                "gregorianDateFormat": "📅 Date Format: Gregorian",
+                "currencyFormat": "💱 Currency: Toman",
+                "programSettings": "⚙️ Program Settings",
+                "backupManagement": "📦 Backup Management",
+                "printJournal": "🖨️ Print Journal",
+                "basicOperations": "⚙️ Basic Operations",
+                "reports": "📊 Chart Reports",
+                "deleteManagement": "🗑️ Delete Management",
+                "wordsManagement": "📝 Words Management",
+                "categoriesManagement": "🏷️ Categories Management",
+                "closeSave": "⚠️ Close & Save",
+                "addNewRecord": "✏️ Add New Record",
+                "editRecord": "✏️ Edit Record",
+                "type": "Type",
+                "amount": "Amount",
+                "addRecord": "💾 Add Record",
+                "saveRecord": "💾 Save Changes",
+                "cancel": "❌ Cancel",
+                "income": "Income",
+                "expense": "Expense",
+                "debt": "Debt (from others)",
+                "credit": "Credit (to others)",
+                "allChangesSaved": "💾 All changes saved",
+                "dataSaved": "✅ Data saved successfully",
+                "recordAdded": "✅ New record added successfully",
+                "recordEdited": "✅ Record edited successfully",
+                "recordDeleted": "✅ Record deleted successfully",
+                "searchResults": "📊 Search Results",
+                "close": "❌ Close",
+                "printResults": "🖨️ Print Results",
+                "saveResults": "💾 Save Results",
+                "exportExcel": "📤 Export Excel",
+                "wordsManager": "📝 Words Management",
+                "newWord": "New word:",
+                "newWordPlaceholder": "Enter new word...",
+                "addWord": "➕ Add Word",
+                "existingWords": "Existing words:",
+                "closeWords": "❌ Close",
+                "editWord": "✏️ Edit",
+                "deleteWord": "🗑️ Delete",
+                "saveWord": "💾 Save",
+                "cancelEdit": "❌ Cancel",
+                "categoriesManager": "🏷️ Categories Management",
+                "newCategory": "New category:",
+                "newCategoryPlaceholder": "Enter new category name...",
+                "addCategory": "➕ Add Category",
+                "existingCategories": "Existing categories:",
+                "closeCategories": "❌ Close",
+                "editCategory": "✏️ Edit",
+                "deleteCategory": "🗑️ Delete",
+                "saveCategory": "💾 Save",
+                "restoreBackup": "📂 Restore Complete Backup",
+                "selectBackup": "Select backup file:",
+                "selectBackupFile": "📁 Select Backup File",
+                "restoreComplete": "🔄 Restore Complete",
+                "cancelRestore": "❌ Cancel",
+                "journalNameSettings": "📝 Journal Name Settings",
+                "journalName": "Journal name:",
+                "journalSubtitle": "Description:",
+                "saveName": "💾 Save Name",
+                "passwordSettings": "🔐 Password Settings",
+                "currentPassword": "Current password:",
+                "newPassword": "New password (4 digits):",
+                "confirmPassword": "Confirm new password:",
+                "savePassword": "💾 Save Password",
+                "currencySettings": "💱 Currency Settings",
+                "saveCurrency": "💾 Save Currency",
+                "noRecords": "No records found",
+                "noResults": "No results found",
+                "resultsFound": "results found",
+                "deleteConfirm": "Are you sure you want to delete this item?",
+                "wordAdded": "✅ Word added successfully",
+                "wordEdited": "✅ Word edited successfully",
+                "wordDeleted": "✅ Word deleted successfully",
+                "categoryAdded": "✅ Category added successfully",
+                "categoryEdited": "✅ Category edited successfully",
+                "categoryDeleted": "✅ Category deleted successfully",
+                "currencyChanged": "✅ Currency changed",
+                "printSuccess": "✅ Print completed successfully",
+                "exportExcelSuccess": "✅ Excel export completed successfully"
+            },
+            ku: {
+                "journalTitle": "دفتری ڕۆژنامەی سادە",
+                "journalSubtitle": "تۆمارکردنی داهات و خەرجی ڕۆژانە",
+                "lockedTitle": "دفتری ڕۆژنامە قفڵ کراوە",
+                "enterPassword": "بۆ چوونە ژوورەوە، وشەی نهێنی بنووسە",
+                "passwordPlaceholder": "وشەی نهێنی (٤ ژمارە)",
+                "unlockButton": "🔓 کردنی قفڵ",
+                "passwordTip": "💡 ئەگەر یەکەمجارە لە پرۆگرامەکە بەکاردهێنیت، وشەی نهێنی ٠٠٠٠ بنووسە",
+                "page": "پەڕە",
+                "of": "لە",
+                "add": "➕ زیادکردن",
+                "search": "🔍 گەڕان",
+                "previousPage": "⏪ پەڕەی پێشوو",
+                "nextPage": "پەڕەی دواتر ⏩",
+                "searchInJournal": "🔍 گەڕان لە دفتری ڕۆژنامە",
+                "searchTerm": "وشەی گەڕان:",
+                "searchPlaceholder": "وشەی بۆ گەڕان...",
+                "executeSearch": "🔍 گەڕان",
+                "date": "بەروار",
+                "row": "ڕیز",
+                "description": "شرح",
+                "payment": "پارەدان",
+                "receipt": "پارەوەرگرتن",
+                "category": "پۆل",
+                "edit": "دەسکاریکردن",
+                "totalPayments": "کۆی پارەدانەکان",
+                "totalReceipts": "کۆی پارەوەرگرتنەکان",
+                "accountBalance": "مایە پارە",
+                "currency": "تۆمان",
+                "today": "ئەمڕۆ",
+                "dateFormat": "📅 شێوازی بەروار: شەمسی",
+                "gregorianDateFormat": "📅 شێوازی بەروار: میلادی",
+                "currencyFormat": "💱 یەکەی پارە: تۆمان",
+                "programSettings": "⚙️ ڕێکخستنی پرۆگرام",
+                "backupManagement": "📦 بەڕێوەبردنی پاشەکەوت",
+                "printJournal": "🖨️ چاپی دفتر",
+                "basicOperations": "⚙ی ئیشە سەرەتاییەکان",
+                "reports": "📊 راپۆرتی نیگارەیی",
+                "deleteManagement": "🗑️ بەڕێوەبردنی سڕینەوە",
+                "wordsManagement": "📝 بەڕێوەبردنی وشە ئامادەکان",
+                "categoriesManagement": "🏷️ بەڕێوەبردنی پۆلەکان",
+                "closeSave": "⚠️ داخستن و پاشەکەوتکردنی پرۆگرام",
+                "addNewRecord": "✏️ زیادکردنی تۆماری نوێ",
+                "editRecord": "✏️ دەسکاریکردنی تۆمار",
+                "type": "جۆر",
+                "amount": "بڕ",
+                "addRecord": "💾 زیادکردنی تۆمار",
+                "saveRecord": "💾 پاشەکەوتکردنی گۆڕانکاریەکان",
+                "cancel": "❌ هەڵوەشاندنەوە",
+                "income": "پارەوەرگرتن",
+                "expense": "پارەدان",
+                "debt": "قەرز لە ئەوانی تر",
+                "credit": "قەرزی بە ئەوانی تر",
+                "allChangesSaved": "💾 هەموو گۆڕانکاریەکان پاشەکەوت کرا",
+                "dataSaved": "✅ داتاکان بە سەرکەوتوویی پاشەکەوت کرا",
+                "recordAdded": "✅ تۆماری نوێ بە سەرکەوتوویی تۆمار کرا",
+                "recordEdited": "✅ تۆمار بە سەرکەوتوویی دەسکاری کرا",
+                "recordDeleted": "✅ تۆمار سڕایەوە",
+                "searchResults": "📊 ئەنجامەکانی گەڕان",
+                "close": "❌ داخستن",
+                "printResults": "🖨️ چاپکردنی ئەنجامەکان",
+                "saveResults": "💾 پاشەکەوتکردنی ئەنجامەکان",
+                "exportExcel": "📤 دەرکردنی ئێکسڵ",
+                "wordsManager": "📝 بەڕێوەبردنی وشە ئامادەکان",
+                "newWord": "وشەی نوێ:",
+                "newWordPlaceholder": "وشەی نوێ بنووسە...",
+                "addWord": "➕ زیادکردنی وشە",
+                "existingWords": "وشە ئامادەکان:",
+                "closeWords": "❌ داخستن",
+                "editWord": "✏️ دەسکاریکردن",
+                "deleteWord": "🗑️ سڕینەوە",
+                "saveWord": "💾 پاشەکەوتکردن",
+                "cancelEdit": "❌ هەڵوەشاندنەوە",
+                "categoriesManager": "🏷️ بەڕێوەبردنی پۆلەکان",
+                "newCategory": "پۆلی نوێ:",
+                "newCategoryPlaceholder": "ناوی پۆلی نوێ...",
+                "addCategory": "➕ زیادکردنی پۆل",
+                "existingCategories": "پۆلە ئامادەکان:",
+                "closeCategories": "❌ داخستن",
+                "editCategory": "✏️ دەسکاریکردن",
+                "deleteCategory": "🗑️ سڕینەوە",
+                "saveCategory": "💾 پاشەکەوتکردن",
+                "restoreBackup": "📂 گەڕاندنەوەی پاشەکەوتی تەواو",
+                "selectBackup": "هەڵبژاردنی فایلی پاشەکەوت:",
+                "selectBackupFile": "📁 هەڵبژاردنی فایلی پاشەکەوت",
+                "restoreComplete": "🔄 گەڕاندنەوەی تەواو",
+                "cancelRestore": "❌ هەڵوەشاندنەوە",
+                "journalNameSettings": "📝 ڕێکخستنی ناوی دفتری ڕۆژنامە",
+                "journalName": "ناوی دفتر:",
+                "journalSubtitle": "ڕوونکردنەوەی کورت:",
+                "saveName": "💾 پاشەکەوتکردنی ناو",
+                "passwordSettings": "🔐 ڕێکخستنی وشەی نهێنی",
+                "currentPassword": "وشەی نهێنی ئێستا:",
+                "newPassword": "وشەی نهێنی نوێ (٤ ژمارە):",
+                "confirmPassword": "دووبارەکردنەوەی وشەی نهێنی نوێ:",
+                "savePassword": "💾 پاشەکەوتکردنی وشەی نهێنی",
+                "currencySettings": "💱 ڕێکخستنی یەکەی پارە",
+                "saveCurrency": "💾 پاشەکەوتکردنی یەکەی پارە",
+                "noRecords": "هیچ تۆمارێک تۆمار نەکراوە",
+                "noResults": "هیچ ئەنجامێک نەدۆزرایەوە",
+                "resultsFound": "ئەنجام دۆزرایەوە",
+                "deleteConfirm": "دڵنیای لە سڕینەوەی ئەم بابەتە؟",
+                "wordAdded": "✅ وشە بە سەرکەوتوویی زیاد کرا",
+                "wordEdited": "✅ وشە بە سەرکەوتوویی دەسکاری کرا",
+                "wordDeleted": "✅ وشە بە سەرکەوتوویی سڕایەوە",
+                "categoryAdded": "✅ پۆل بە سەرکەوتوویی زیاد کرا",
+                "categoryEdited": "✅ پۆل بە سەرکەوتوویی دەسکاری کرا",
+                "categoryDeleted": "✅ پۆل بە سەرکەوتوویی سڕایەوە",
+                "currencyChanged": "✅ یەکەی پارە گۆڕا",
+                "printSuccess": "✅ چاپ بە سەرکەوتوویی ئەنجام درا",
+                "exportExcelSuccess": "✅ دەرکردنی ئێکسڵ بە سەرکەوتوویی ئەنجام درا"
+            },
+            ar: {
+                "journalTitle": "دفتر يوميات بسيط",
+                "journalSubtitle": "تسجيل الدخل والمصروفات اليومية",
+                "lockedTitle": "دفتر اليوميات مقفل",
+                "enterPassword": "أدخل كلمة المرور للوصول",
+                "passwordPlaceholder": "كلمة المرور (4 أرقام)",
+                "unlockButton": "🔓 فتح القفل",
+                "passwordTip": "💡 إذا كنت تستخدم البرنامج لأول مرة، استخدم كلمة المرور الافتراضية 0000",
+                "page": "صفحة",
+                "of": "من",
+                "add": "➕ إضافة",
+                "search": "🔍 بحث",
+                "previousPage": "⏪ الصفحة السابقة",
+                "nextPage": "الصفحة التالية ⏩",
+                "searchInJournal": "🔍 البحث في دفتر اليوميات",
+                "searchTerm": "كلمة البحث:",
+                "searchPlaceholder": "نص للبحث عنه...",
+                "executeSearch": "🔍 بحث",
+                "date": "التاريخ",
+                "row": "صف",
+                "description": "الوصف",
+                "payment": "دفع",
+                "receipt": "إيصال",
+                "category": "فئة",
+                "edit": "تحرير",
+                "totalPayments": "إجمالي المدفوعات",
+                "totalReceipts": "إجمالي الإيصالات",
+                "accountBalance": "رصيد الحساب",
+                "currency": "تومان",
+                "today": "اليوم",
+                "dateFormat": "📅 تنسيق التاريخ: شمسي",
+                "gregorianDateFormat": "📅 تنسيق التاريخ: ميلادي",
+                "currencyFormat": "💱 العملة: تومان",
+                "programSettings": "⚙️ إعدادات البرنامج",
+                "backupManagement": "📦 إدارة النسخ الاحتياطي",
+                "printJournal": "🖨️ طباعة الدفتر",
+                "basicOperations": "⚙️ العمليات الأساسية",
+                "reports": "📊 تقارير بيانية",
+                "deleteManagement": "🗑️ إدارة الحذف",
+                "wordsManagement": "📝 إدارة الكلمات الجاهزة",
+                "categoriesManagement": "🏷️ إدارة الفئات",
+                "closeSave": "⚠️ إغلاق وحفظ البرنامج",
+                "addNewRecord": "✏️ إضافة سجل جديد",
+                "editRecord": "✏️ تحرير السجل",
+                "type": "النوع",
+                "amount": "المبلغ",
+                "addRecord": "💾 إضافة سجل",
+                "saveRecord": "💾 حفظ التغييرات",
+                "cancel": "❌ إلغاء",
+                "income": "إيصال",
+                "expense": "دفع",
+                "debt": "دين من الآخرين",
+                "credit": "دين للآخرين",
+                "allChangesSaved": "💾 تم حفظ جميع التغييرات",
+                "dataSaved": "✅ تم حفظ البيانات بنجاح",
+                "recordAdded": "✅ تمت إضافة السجل الجديد بنجاح",
+                "recordEdited": "✅ تم تحرير السجل بنجاح",
+                "recordDeleted": "✅ تم حذف السجل بنجاح",
+                "searchResults": "📊 نتائج البحث",
+                "close": "❌ إغلاق",
+                "printResults": "🖨️ طباعة النتائج",
+                "saveResults": "💾 حفظ النتائج",
+                "exportExcel": "📤 تصدير إكسل",
+                "wordsManager": "📝 إدارة الكلمات الجاهزة",
+                "newWord": "كلمة جديدة:",
+                "newWordPlaceholder": "أدخل كلمة جديدة...",
+                "addWord": "➕ إضافة كلمة",
+                "existingWords": "الكلمات الموجودة:",
+                "closeWords": "❌ إغلاق",
+                "editWord": "✏️ تحرير",
+                "deleteWord": "🗑️ حذف",
+                "saveWord": "💾 حفظ",
+                "cancelEdit": "❌ إلغاء",
+                "categoriesManager": "🏷️ إدارة الفئات",
+                "newCategory": "فئة جديدة:",
+                "newCategoryPlaceholder": "أدخل اسم الفئة الجديدة...",
+                "addCategory": "➕ إضافة فئة",
+                "existingCategories": "الفئات الموجودة:",
+                "closeCategories": "❌ إغلاق",
+                "editCategory": "✏️ تحرير",
+                "deleteCategory": "🗑️ حذف",
+                "saveCategory": "💾 حفظ",
+                "restoreBackup": "📂 استعادة النسخة الاحتياطية الكاملة",
+                "selectBackup": "اختر ملف النسخ الاحتياطي:",
+                "selectBackupFile": "📁 اختيار ملف النسخ الاحتياطي",
+                "restoreComplete": "🔄 استعادة كاملة",
+                "cancelRestore": "❌ إلغاء",
+                "journalNameSettings": "📝 إعدادات اسم دفتر اليوميات",
+                "journalName": "اسم الدفتر:",
+                "journalSubtitle": "وصف مختصر:",
+                "saveName": "💾 حفظ الاسم",
+                "passwordSettings": "🔐 إعدادات كلمة المرور",
+                "currentPassword": "كلمة المرور الحالية:",
+                "newPassword": "کلمة المرور الجديدة (4 أرقام):",
+                "confirmPassword": "تأكيد كلمة المرور الجديدة:",
+                "savePassword": "💾 حفظ كلمة المرور",
+                "currencySettings": "💱 إعدادات العملة",
+                "saveCurrency": "💾 حفظ العملة",
+                "noRecords": "لا توجد سجلات",
+                "noResults": "لم يتم العثور على نتائج",
+                "resultsFound": "تم العثور على نتائج",
+                "deleteConfirm": "هل أنت متأكد من حذف هذا العنصر؟",
+                "wordAdded": "✅ تمت إضافة الكلمة بنجاح",
+                "wordEdited": "✅ تم تحرير الكلمة بنجاح",
+                "wordDeleted": "✅ تم حذف الكلمة بنجاح",
+                "categoryAdded": "✅ تمت إضافة الفئة بنجاح",
+                "categoryEdited": "✅ تم تحرير الفئة بنجاح",
+                "categoryDeleted": "✅ تم حذف الفئة بنجاح",
+                "currencyChanged": "✅ تم تغيير العملة",
+                "printSuccess": "✅ تمت الطباعة بنجاح",
+                "exportExcelSuccess": "✅ تم تصدير إكسل بنجاح"
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('journalLanguage') || 'fa';
+
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        // ==================== توابع کمکی ====================
+        
+        function toPersianNumber(number) {
+            if (number === undefined || number === null) return '';
+            
+            const numStr = String(number);
+            let result = '';
+            
+            for (let i = 0; i < numStr.length; i++) {
+                const char = numStr[i];
+                if (char >= '0' && char <= '9') {
+                    result += PERSIAN_NUMBERS[parseInt(char)];
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+
+        function toEnglishNumber(persianNumber) {
+            if (!persianNumber) return '';
+            
+            const numStr = String(persianNumber);
+            let result = '';
+            
+            for (let i = 0; i < numStr.length; i++) {
+                const char = numStr[i];
+                const persianIndex = PERSIAN_NUMBERS.indexOf(char);
+                const arabicIndex = ARABIC_NUMBERS.indexOf(char);
+                
+                if (persianIndex !== -1) {
+                    result += persianIndex;
+                } else if (arabicIndex !== -1) {
+                    result += arabicIndex;
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+
+        function numberWithCommas(x) {
+            if (x === undefined || x === null) return '0';
+            const num = parseFloat(x);
+            if (isNaN(num)) return '0';
+            const parts = num.toString().split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join(".");
+        }
+
+        // ==================== سیستم واحد پول ====================
+        function convertAmount(amount, fromCurrency, toCurrency) {
+            if (fromCurrency === toCurrency) return amount;
+            const amountInToman = amount * currencyRates[fromCurrency].rate;
+            return amountInToman / currencyRates[toCurrency].rate;
+        }
+
+        function formatCurrency(amount) {
+            const rateInfo = currencyRates[currency];
+            const convertedAmount = convertAmount(amount, 'toman', currency);
+            const formattedAmount = toPersianNumber(numberWithCommas(convertedAmount.toFixed(rateInfo.decimals)));
+            return formattedAmount + ' ' + rateInfo.symbol;
+        }
+
+        function updateCurrencyDisplay() {
+            const currencyDisplay = document.getElementById('currencyDisplay');
+            if (currencyDisplay) {
+                currencyDisplay.textContent = '💱 واحد پول: ' + currencyRates[currency].symbol;
+            }
+        }
+
+        // ==================== توابع تبدیل تاریخ ====================
+        function gregorianToJalali(gy, gm, gd) {
+            const g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+            
+            let gy2 = (gm > 2) ? (gy + 1) : gy;
+            let days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd;
+            
+            for (let i = 0; i < gm - 1; i++) {
+                days += g_days_in_month[i];
+            }
+            
+            if (gm > 2 && ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0))) {
+                days++;
+            }
+            
+            let jy = -1595 + (33 * Math.floor(days / 12053));
+            days %= 12053;
+            jy += 4 * Math.floor(days / 1461);
+            days %= 1461;
+            
+            if (days > 365) {
+                jy += Math.floor((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            
+            let jm, jd;
+            if (days < 186) {
+                jm = 1 + Math.floor(days / 31);
+                jd = 1 + (days % 31);
+            } else {
+                days -= 186;
+                jm = 7 + Math.floor(days / 30);
+                jd = 1 + (days % 30);
+            }
+            
+            return [jy, jm, jd];
+        }
+
+        function jalaliToGregorian(jy, jm, jd) {
+            const g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+            
+            jy += 1595;
+            let days = -355668 + (365 * jy) + (Math.floor(jy / 33) * 8) + Math.floor(((jy % 33) + 3) / 4);
+            
+            for (let i = 0; i < jm - 1; i++) {
+                days += j_days_in_month[i];
+            }
+            
+            days += jd;
+            
+            let gy = 400 * Math.floor(days / 146097);
+            days %= 146097;
+            
+            if (days > 36524) {
+                gy += 100 * Math.floor(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            
+            gy += 4 * Math.floor(days / 1461);
+            days %= 1461;
+            
+            if (days > 365) {
+                gy += Math.floor((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            
+            let gd = days + 1;
+            let gm;
+            
+            for (gm = 0; gm < 12; gm++) {
+                let v = g_days_in_month[gm];
+                if (gm === 1 && ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0))) {
+                    v++;
+                }
+                if (gd <= v) break;
+                gd -= v;
+            }
+            
+            return [gy, gm + 1, gd];
+        }
+
+        // ==================== سیستم مدیریت رمز عبور ====================
+        function checkPassword() {
+            safeLoadData();
+            
+            const password = localStorage.getItem('journalPassword');
+            
+            if (!password || password === 'null' || password === 'undefined' || password === '' || password === '0000') {
+                if (password === '0000') {
+                    localStorage.removeItem('journalPassword');
+                }
+                showMainContent();
+                return;
+            }
+            
+            document.getElementById('lockScreen').style.display = 'flex';
+            
+            setTimeout(function() {
+                var passwordInput = document.getElementById('passwordInput');
+                if (passwordInput) {
+                    passwordInput.focus();
+                }
+            }, 100);
+        }
+
+        function handlePasswordEnter(event) {
+            event = event || window.event;
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                unlockJournal();
+            }
+        }
+
+        function unlockJournal() {
+            const passwordInput = document.getElementById('passwordInput');
+            if (!passwordInput) return;
+            
+            const enteredPassword = passwordInput.value;
+            const savedPassword = localStorage.getItem('journalPassword');
+            
+            if (enteredPassword.length !== 4) {
+                showPasswordError('❌ رمز عبور باید ۴ رقمی باشد');
+                return;
+            }
+            
+            if (!savedPassword || savedPassword === 'null' || savedPassword === 'undefined' || savedPassword === '') {
+                if (enteredPassword === '0000') {
+                    localStorage.removeItem('journalPassword');
+                    showMainContent();
+                } else {
+                    localStorage.setItem('journalPassword', enteredPassword);
+                    showMainContent();
+                }
+                return;
+            }
+            
+            if (enteredPassword === savedPassword) {
+                showMainContent();
+            } else {
+                showPasswordError('❌ رمز عبور نادرست است');
+                passwordInput.value = '';
+                
+                setTimeout(function() {
+                    if (passwordInput) {
+                        passwordInput.focus();
+                    }
+                }, 100);
+            }
+        }
+
+        function showPasswordError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.color = '#e74c3c';
+                errorElement.style.fontWeight = 'bold';
+                
+                setTimeout(function() {
+                    errorElement.textContent = '';
+                }, 3000);
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            
+            if (!passwordInput || !toggleBtn) return;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.innerHTML = '🙈';
+                toggleBtn.setAttribute('aria-label', 'مخفی کردن رمز عبور');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.innerHTML = '👁️';
+                toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
+            }
+        }
+
+        function showMainContent() {
+            try {
+                const lockScreen = document.getElementById('lockScreen');
+                const mainContent = document.getElementById('mainContent');
+                
+                if (lockScreen) lockScreen.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'block';
+                
+                const passwordInput = document.getElementById('passwordInput');
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.type = 'password';
+                }
+                
+                const toggleBtn = document.getElementById('togglePasswordBtn');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = '👁️';
+                    toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
+                }
+                
+                const errorElement = document.getElementById('errorMessage');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+                
+                setTimeout(function() {
+                    updateDisplay();
+                    updateBalance();
+                    updateCategoriesDropdown();
+                    updateTodayDate();
+                    startClock();
+                    updateDateFormatDisplay();
+                    updateCurrencyDisplay();
+                    initializeLanguageDisplay();
+                }, 50);
+                
+            } catch (error) {
+                console.error('خطا در showMainContent:', error);
+            }
+        }
+
+        // ==================== سیستم ذخیره‌سازی ====================
+        function safeSaveData() {
+            try {
+                localStorage.setItem('simpleJournal', JSON.stringify(entries));
+                localStorage.setItem('currentRow', currentRow.toString());
+                localStorage.setItem('journalCategories', JSON.stringify(categories));
+                localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+                localStorage.setItem('journalDataVersion', DATA_VERSION);
+                localStorage.setItem('journalCurrency', currency);
+                localStorage.setItem('currencyRates', JSON.stringify(currencyRates));
+                localStorage.setItem('entryHistory', JSON.stringify(entryHistory));
+                
+                return true;
+            } catch (error) {
+                console.error('خطا در ذخیره‌سازی:', error);
+                return false;
+            }
+        }
+
+        function safeLoadData() {
+            try {
+                var savedEntries = localStorage.getItem('simpleJournal');
+                if (savedEntries) {
+                    var parsed = JSON.parse(savedEntries);
+                    if (Array.isArray(parsed)) {
+                        entries = parsed;
+                    }
+                }
+                
+                var savedRow = localStorage.getItem('currentRow');
+                if (savedRow) {
+                    currentRow = parseInt(savedRow, 10) || 1;
+                }
+                
+                var savedCategories = localStorage.getItem('journalCategories');
+                if (savedCategories) {
+                    try {
+                        var parsedCategories = JSON.parse(savedCategories);
+                        if (Array.isArray(parsedCategories)) {
+                            categories = parsedCategories;
+                        }
+                    } catch (e) {
+                        console.warn('خطا در بارگذاری دسته‌بندی‌ها:', e);
+                    }
+                } else {
+                    categories = defaultCategoriesByLang[currentLanguage] || defaultCategoriesByLang['fa'];
+                }
+                
+                var savedWords = localStorage.getItem('suggestedWords');
+                if (savedWords) {
+                    try {
+                        var parsedWords = JSON.parse(savedWords);
+                        if (Array.isArray(parsedWords)) {
+                            suggestedWords = parsedWords;
+                        }
+                    } catch (e) {
+                        console.warn('خطا در بارگذاری کلمات پیشنهادی:', e);
+                    }
+                } else {
+                    suggestedWords = defaultWordsByLang[currentLanguage] || defaultWordsByLang['fa'];
+                }
+                
+                var savedCurrency = localStorage.getItem('journalCurrency');
+                if (savedCurrency) {
+                    currency = savedCurrency;
+                }
+                
+                var savedCurrencyRates = localStorage.getItem('currencyRates');
+                if (savedCurrencyRates) {
+                    try {
+                        var parsedRates = JSON.parse(savedCurrencyRates);
+                        currencyRates = parsedRates;
+                    } catch (e) {
+                        console.warn('خطا در بارگذاری نرخ ارز:', e);
+                    }
+                }
+                
+                var savedHistory = localStorage.getItem('entryHistory');
+                if (savedHistory) {
+                    try {
+                        entryHistory = JSON.parse(savedHistory);
+                    } catch (e) {
+                        console.warn('خطا در بارگذاری تاریخچه ویرایش‌ها:', e);
+                        entryHistory = {};
+                    }
+                } else {
+                    entryHistory = {};
+                }
+                
+            } catch (error) {
+                console.error('خطا در بارگذاری داده‌ها:', error);
+                entries = [];
+                currentRow = 1;
+                categories = defaultCategoriesByLang[currentLanguage] || defaultCategoriesByLang['fa'];
+                suggestedWords = defaultWordsByLang[currentLanguage] || defaultWordsByLang['fa'];
+                entryHistory = {};
+            }
+        }
+
+        // ==================== توابع نمایش و به‌روزرسانی ====================
+        function updateDisplay() {
+            try {
+                var journalBody = document.getElementById('journalBody');
+                if (!journalBody) return;
+                
+                journalBody.innerHTML = '';
+
+                var displayEntries = searchResults.length > 0 ? searchResults : entries;
+                var totalPages = Math.ceil(displayEntries.length / recordsPerPage) || 1;
+                var startIndex = (currentPage - 1) * recordsPerPage;
+                var endIndex = startIndex + recordsPerPage;
+                var pageEntries = displayEntries.slice(startIndex, endIndex);
+
+                var currentPageEl = document.getElementById('currentPage');
+                var totalPagesEl = document.getElementById('totalPages');
+                var prevBtn = document.getElementById('prevPageBtn');
+                var nextBtn = document.getElementById('nextPageBtn');
+                
+                if (currentPageEl) currentPageEl.textContent = toPersianNumber(currentPage);
+                if (totalPagesEl) totalPagesEl.textContent = toPersianNumber(totalPages);
+                
+                if (prevBtn) prevBtn.disabled = currentPage <= 1;
+                if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+                if (pageEntries.length === 0) {
+                    journalBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #7f8c8d;">' + t('noRecords') + '</td></tr>';
+                    return;
+                }
+
+                var fragment = document.createDocumentFragment();
+                
+                for (var i = 0; i < pageEntries.length; i++) {
+                    var entry = pageEntries[i];
+                    var row = document.createElement('tr');
+                    row.setAttribute('data-row', entry.row);
+                    
+                    var amountDisplay = formatCurrency(entry.amount);
+                    var paymentCell = '';
+                    var receiptCell = '';
+                    
+                    if (entry.type === 'expense' || entry.type === 'credit') {
+                        paymentCell = '<td class="expense">' + amountDisplay + '</td>';
+                        receiptCell = '<td></td>';
+                    } else {
+                        paymentCell = '<td></td>';
+                        receiptCell = '<td class="income">' + amountDisplay + '</td>';
+                    }
+                    
+                    // بررسی آیا این رکورد ویرایش شده است
+                    const hasHistory = entryHistory[entry.row] && entryHistory[entry.row].length > 0;
+                    const starIcon = hasHistory ? '<span class="correction-star" onclick="showOriginalRecord(' + entry.row + ', this)" aria-label="نمایش نسخه قبلی">⭐</span>' : '';
+                    
+                    row.innerHTML = 
+                        '<td>' + toPersianNumber(entry.row) + starIcon + '</td>' +
+                        '<td>' + formatDate(entry.date) + '</td>' +
+                        '<td style="text-align: right; padding-right: 15px;">' + entry.description + '</td>' +
+                        paymentCell +
+                        receiptCell +
+                        '<td>' + entry.category + '</td>' +
+                        '<td>' +
+                        '<button class="edit-btn" onclick="editEntry(' + entry.row + ')" title="' + t('edit') + '" aria-label="ویرایش رکورد">✏️</button>' +
+                        '<button class="delete-btn" onclick="deleteSingleEntry(' + entry.row + ')" title="حذف" aria-label="حذف رکورد" style="margin-right: 5px; background: #e74c3c; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer;">🗑️</button>' +
+                        '</td>';
+                    
+                    // اگر ویرایش شده باشد، کلاس اضافه کن
+                    if (hasHistory) {
+                        row.classList.add('corrected-record');
+                    }
+                    
+                    fragment.appendChild(row);
+                }
+                
+                journalBody.appendChild(fragment);
+                
+            } catch (error) {
+                console.error('خطا در updateDisplay:', error);
+            }
+        }
+
+        function formatDate(dateString) {
+            try {
+                if (!dateString) return 'تاریخ نامعتبر';
+                
+                var parts = dateString.split('/');
+                if (parts.length !== 3) {
+                    return dateString;
+                }
+                
+                var year = parseInt(parts[0]);
+                var month = parseInt(parts[1]);
+                var day = parseInt(parts[2]);
+                
+                if (isNaN(year) || isNaN(month) || isNaN(day)) {
+                    return 'تاریخ نامعتبر';
+                }
+                
+                if (dateFormat === 'gregorian') {
+                    if (year < 1500) {
+                        var gregorian = jalaliToGregorian(year, month, day);
+                        year = gregorian[0];
+                        month = gregorian[1];
+                        day = gregorian[2];
+                    }
+                    
+                    return toPersianNumber(year) + '/' + 
+                           toPersianNumber(month.toString().padStart(2, '0')) + '/' + 
+                           toPersianNumber(day.toString().padStart(2, '0'));
+                } else {
+                    if (year > 1500) {
+                        var jalali = gregorianToJalali(year, month, day);
+                        year = jalali[0];
+                        month = jalali[1];
+                        day = jalali[2];
+                    }
+                    
+                    var monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                                     'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+                    
+                    var monthName = monthNames[month - 1] || 'ماه';
+                    
+                    return toPersianNumber(year) + ' ' + monthName + ' ' + toPersianNumber(day);
+                }
+            } catch (error) {
+                console.error('خطا در فرمت تاریخ:', error);
+                return dateString || 'تاریخ نامعتبر';
+            }
+        }
+
+        // ==================== سیستم ویرایش با علامت ستاره ====================
+        function editEntry(row) {
+            // ذخیره نسخه قبلی قبل از ویرایش
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].row === row) {
+                    if (!entryHistory[row]) {
+                        entryHistory[row] = [];
+                    }
+                    
+                    // ذخیره نسخه قبلی در تاریخچه
+                    entryHistory[row].push({
+                        ...entries[i],
+                        changedAt: new Date().toISOString()
+                    });
+                    
+                    break;
+                }
+            }
+            
+            showEditModal(row);
+        }
+
+        function showOriginalRecord(row, starElement) {
+            const history = entryHistory[row];
+            if (!history || history.length === 0) return;
+            
+            // آخرین نسخه قبل از ویرایش
+            const lastOriginal = history[history.length - 1];
+            
+            // ایجاد یا به‌روزرسانی نمایش نسخه اصلی
+            let originalDisplay = starElement.nextElementSibling;
+            if (!originalDisplay || !originalDisplay.classList.contains('original-record')) {
+                originalDisplay = document.createElement('div');
+                originalDisplay.className = 'original-record';
+                starElement.parentNode.insertBefore(originalDisplay, starElement.nextSibling);
+            }
+            
+            originalDisplay.innerHTML = `
+                <strong>نسخه قبلی:</strong><br>
+                شرح: ${lastOriginal.description}<br>
+                مبلغ: ${formatCurrency(lastOriginal.amount)}<br>
+                نوع: ${lastOriginal.type === 'income' ? 'دریافت' : 
+                        lastOriginal.type === 'expense' ? 'پرداخت' : 
+                        lastOriginal.type === 'debt' ? 'طلب' : 'بدهی'}<br>
+                تاریخ ویرایش: ${new Date(lastOriginal.changedAt).toLocaleDateString('fa-IR')}
+            `;
+            
+            originalDisplay.classList.toggle('show');
+        }
+
+        // ==================== توابع خلاصه حساب‌ها ====================
+        function updateBalance() {
+            var totalIncome = 0;
+            var totalExpense = 0;
+            var totalDebt = 0;
+            var totalCredit = 0;
+            
+            for (var i = 0; i < entries.length; i++) {
+                var entry = entries[i];
+                if (entry.type === 'income') totalIncome += entry.amount;
+                else if (entry.type === 'expense') totalExpense += entry.amount;
+                else if (entry.type === 'debt') totalDebt += entry.amount;
+                else if (entry.type === 'credit') totalCredit += entry.amount;
+            }
+            
+            var totalReceipts = totalIncome + totalDebt;
+            var totalPayments = totalExpense + totalCredit;
+            var balance = totalReceipts - totalPayments;
+            
+            // به‌روزرسانی خلاصه افقی
+            var horizontalExpense = document.getElementById('horizontalExpense');
+            var horizontalIncome = document.getElementById('horizontalIncome');
+            var horizontalBalance = document.getElementById('horizontalBalance');
+            
+            if (horizontalExpense) {
+                horizontalExpense.textContent = formatCurrency(totalPayments);
+            }
+            if (horizontalIncome) {
+                horizontalIncome.textContent = formatCurrency(totalReceipts);
+            }
+            if (horizontalBalance) {
+                horizontalBalance.textContent = formatCurrency(Math.abs(balance));
+                horizontalBalance.className = 'amount ' + (balance >= 0 ? 'income' : 'expense');
+            }
+        }
+
+        // ==================== توابع زمان و تاریخ ====================
+        function startClock() {
+            function updateClock() {
+                var now = new Date();
+                updateTodayDate();
+                var timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    try {
+                        var timeString = now.toLocaleTimeString('fa-IR');
+                        timeElement.textContent = '🕒 ' + timeString;
+                    } catch (e) {
+                        var hours = now.getHours();
+                        var minutes = now.getMinutes();
+                        var seconds = now.getSeconds();
+                        timeElement.textContent = '🕒 ' + (hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
+                    }
+                }
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateTodayDate() {
+            var todayElement = document.getElementById('todayDate');
+            if (todayElement) {
+                var now = new Date();
+                var year = now.getFullYear();
+                var month = now.getMonth() + 1;
+                var day = now.getDate();
+                
+                if (dateFormat === 'gregorian') {
+                    todayElement.textContent = toPersianNumber(year) + '/' + 
+                        toPersianNumber(month.toString().padStart(2, '0')) + '/' + 
+                        toPersianNumber(day.toString().padStart(2, '0'));
+                } else {
+                    var jalali = gregorianToJalali(year, month, day);
+                    var jYear = jalali[0];
+                    var jMonth = jalali[1];
+                    var jDay = jalali[2];
+                    
+                    var monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                                     'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+                    
+                    var monthName = monthNames[jMonth - 1] || 'ماه';
+                    
+                    todayElement.textContent = toPersianNumber(jYear) + ' ' + monthName + ' ' + toPersianNumber(jDay);
+                }
+            }
+        }
+
+        // ==================== توابع مدیریت دسته‌بندی‌ها ====================
+        function updateCategoriesDropdown() {
+            var categorySelect = document.getElementById('editCategory');
+            if (!categorySelect) return;
+            
+            categorySelect.innerHTML = '';
+            
+            for (var i = 0; i < categories.length; i++) {
+                var option = document.createElement('option');
+                option.value = categories[i];
+                option.textContent = categories[i];
+                categorySelect.appendChild(option);
+            }
+        }
+
+        function showCategoriesManager() {
+            var modal = document.getElementById('categoriesManagerModal');
+            if (modal) {
+                modal.style.display = 'block';
+                updateCategoriesList();
+                setTimeout(function() {
+                    var newCategoryInput = document.getElementById('newCategory');
+                    if (newCategoryInput) {
+                        newCategoryInput.focus();
+                    }
+                }, 100);
+            }
+        }
+
+        function hideCategoriesManager() {
+            var modal = document.getElementById('categoriesManagerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            var newCategoryInput = document.getElementById('newCategory');
+            if (newCategoryInput) {
+                newCategoryInput.value = '';
+            }
+        }
+
+        function addNewCategory() {
+            var newCategoryInput = document.getElementById('newCategory');
+            if (!newCategoryInput) return;
+            
+            var newCategory = newCategoryInput.value.trim();
+            
+            if (!newCategory) {
+                showNotification('لطفاً نام دسته‌بندی را وارد کنید.', 'error');
+                return;
+            }
+            
+            if (categories.includes(newCategory)) {
+                showNotification('این دسته‌بندی قبلاً اضافه شده است.', 'error');
+                return;
+            }
+            
+            categories.push(newCategory);
+            localStorage.setItem('journalCategories', JSON.stringify(categories));
+            
+            newCategoryInput.value = '';
+            updateCategoriesList();
+            updateCategoriesDropdown();
+            
+            showNotification(t('categoryAdded'), 'success');
+        }
+
+        function updateCategoriesList() {
+            var categoriesList = document.getElementById('categoriesList');
+            if (!categoriesList) return;
+            
+            categoriesList.innerHTML = '';
+            
+            for (var i = 0; i < categories.length; i++) {
+                var categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.innerHTML = 
+                    '<div class="category-text">' + categories[i] + '</div>' +
+                    '<div class="category-actions">' +
+                    '<button class="btn-edit-category" onclick="editCategoryItem(' + i + ')" aria-label="ویرایش دسته‌بندی">' + t('editCategory') + '</button>' +
+                    '<button class="btn-delete-category" onclick="deleteCategory(' + i + ')" aria-label="حذف دسته‌بندی">' + t('deleteCategory') + '</button>' +
+                    '</div>';
+                categoriesList.appendChild(categoryItem);
+            }
+        }
+
+        function editCategoryItem(index) {
+            var newName = prompt(t('editCategory') + ' "' + categories[index] + '":', categories[index]);
+            if (newName !== null && newName.trim() !== '') {
+                categories[index] = newName.trim();
+                localStorage.setItem('journalCategories', JSON.stringify(categories));
+                updateCategoriesList();
+                updateCategoriesDropdown();
+                showNotification(t('categoryEdited'), 'success');
+            }
+        }
+
+        function deleteCategory(index) {
+            if (confirm(t('deleteConfirm'))) {
+                categories.splice(index, 1);
+                localStorage.setItem('journalCategories', JSON.stringify(categories));
+                updateCategoriesList();
+                updateCategoriesDropdown();
+                showNotification(t('categoryDeleted'), 'success');
+            }
+        }
+
+        // ==================== سیستم ویرایش و افزودن رکورد ====================
+        function showEditModal(editRow = null) {
+            try {
+                editingEntryRow = editRow;
+                var modal = document.getElementById('editModal');
+                var modalTitle = document.getElementById('editModalTitle');
+                var addButton = document.getElementById('addRecordModalBtn');
+                
+                if (modal) {
+                    modal.style.display = 'block';
+                    
+                    if (editRow) {
+                        // حالت ویرایش
+                        modalTitle.textContent = t('editRecord');
+                        addButton.textContent = t('saveRecord');
+                        
+                        // یافتن رکورد برای ویرایش
+                        var entryToEdit = null;
+                        for (var i = 0; i < entries.length; i++) {
+                            if (entries[i].row === editRow) {
+                                entryToEdit = entries[i];
+                                break;
+                            }
+                        }
+                        
+                        if (entryToEdit) {
+                            // پر کردن فرم با اطلاعات رکورد
+                            var dateInput = document.getElementById('editDate');
+                            var descInput = document.getElementById('editDescription');
+                            var typeSelect = document.getElementById('editType');
+                            var amountInput = document.getElementById('editAmount');
+                            var categorySelect = document.getElementById('editCategory');
+                            
+                            if (dateInput && descInput && typeSelect && amountInput && categorySelect) {
+                                // تبدیل تاریخ به فرمت میلادی برای نمایش
+                                var dateParts = entryToEdit.date.split('/');
+                                if (dateParts.length === 3) {
+                                    var year = parseInt(dateParts[0]);
+                                    var month = parseInt(dateParts[1]);
+                                    var day = parseInt(dateParts[2]);
+                                    
+                                    if (year < 1500) {
+                                        var gregorian = jalaliToGregorian(year, month, day);
+                                        dateInput.value = gregorian[0] + '-' + 
+                                                         gregorian[1].toString().padStart(2, '0') + '-' + 
+                                                         gregorian[2].toString().padStart(2, '0');
+                                    } else {
+                                        dateInput.value = year + '-' + 
+                                                         month.toString().padStart(2, '0') + '-' + 
+                                                         day.toString().padStart(2, '0');
+                                    }
+                                }
+                                
+                                descInput.value = entryToEdit.description;
+                                typeSelect.value = entryToEdit.type;
+                                amountInput.value = entryToEdit.amount;
+                                categorySelect.value = entryToEdit.category;
+                            }
+                        }
+                    } else {
+                        // حالت افزودن جدید
+                        modalTitle.textContent = t('addNewRecord');
+                        addButton.textContent = t('addRecord');
+                        
+                        var today = new Date();
+                        var year = today.getFullYear();
+                        var month = today.getMonth() + 1;
+                        var day = today.getDate();
+                        
+                        var formattedDate = year + '-' + 
+                                           (month < 10 ? '0' + month : month) + '-' + 
+                                           (day < 10 ? '0' + day : day);
+                        
+                        var dateInput = document.getElementById('editDate');
+                        if (dateInput) {
+                            dateInput.value = formattedDate;
+                        }
+                        
+                        // ریست کردن بقیه فیلدها
+                        var descInput = document.getElementById('editDescription');
+                        var amountInput = document.getElementById('editAmount');
+                        var typeSelect = document.getElementById('editType');
+                        var categorySelect = document.getElementById('editCategory');
+                        
+                        if (descInput) descInput.value = '';
+                        if (amountInput) amountInput.value = '';
+                        if (typeSelect) typeSelect.value = 'income';
+                        if (categorySelect) categorySelect.value = categories[0] || t('general');
+                    }
+                    
+                    setTimeout(function() {
+                        var descInput = document.getElementById('editDescription');
+                        if (descInput) {
+                            descInput.focus();
+                        }
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('خطا در نمایش مودال:', error);
+                showNotification('خطا در نمایش فرم. لطفاً صفحه را رفرش کنید.', 'error');
+            }
+        }
+
+        function addNewEntry() {
+            if (editingEntryRow) {
+                saveEditedEntry();
+                return;
+            }
+            
+            var description = document.getElementById('editDescription').value.trim();
+            var amountInput = document.getElementById('editAmount').value;
+            var type = document.getElementById('editType').value;
+            var category = document.getElementById('editCategory').value;
+            var dateInput = document.getElementById('editDate').value;
+
+            if (!description) {
+                showNotification('لطفاً شرح معامله را وارد کنید', 'error');
+                return;
+            }
+
+            var amount = parseInt(toEnglishNumber(amountInput));
+            if (!amount || amount <= 0) {
+                showNotification('لطفاً مبلغ معتبر وارد کنید', 'error');
+                return;
+            }
+
+            if (!dateInput) {
+                showNotification('لطفاً تاریخ را وارد کنید', 'error');
+                return;
+            }
+
+            var dateParts = dateInput.split('-');
+            if (dateParts.length !== 3) {
+                showNotification('فرمت تاریخ نامعتبر است. از فرمت YYYY-MM-DD استفاده کنید', 'error');
+                return;
+            }
+
+            var year = parseInt(dateParts[0]);
+            var month = parseInt(dateParts[1]);
+            var day = parseInt(dateParts[2]);
+
+            var jalali = gregorianToJalali(year, month, day);
+            var dateToSave = jalali[0] + '/' + jalali[1] + '/' + jalali[2];
+
+            var newEntry = {
+                row: currentRow++,
+                date: dateToSave,
+                description: description,
+                type: type,
+                amount: amount,
+                category: category,
+                timestamp: new Date().toISOString()
+            };
+
+            entries.push(newEntry);
+            
+            debouncedSave();
+            updateDisplay();
+            updateBalance();
+            hideEditModal();
+            
+            showNotification(t('recordAdded'), 'success');
+        }
+
+        function saveEditedEntry() {
+            var description = document.getElementById('editDescription').value.trim();
+            var amountInput = document.getElementById('editAmount').value;
+            var type = document.getElementById('editType').value;
+            var category = document.getElementById('editCategory').value;
+            var dateInput = document.getElementById('editDate').value;
+
+            if (!description) {
+                showNotification('لطفاً شرح معامله را وارد کنید', 'error');
+                return;
+            }
+
+            var amount = parseInt(toEnglishNumber(amountInput));
+            if (!amount || amount <= 0) {
+                showNotification('لطفاً مبلغ معتبر وارد کنید', 'error');
+                return;
+            }
+
+            if (!dateInput) {
+                showNotification('لطفاً تاریخ را وارد کنید', 'error');
+                return;
+            }
+
+            var dateParts = dateInput.split('-');
+            if (dateParts.length !== 3) {
+                showNotification('فرمت تاریخ نامعتبر است. از فرمت YYYY-MM-DD استفاده کنید', 'error');
+                return;
+            }
+
+            var year = parseInt(dateParts[0]);
+            var month = parseInt(dateParts[1]);
+            var day = parseInt(dateParts[2]);
+
+            var jalali = gregorianToJalali(year, month, day);
+            var dateToSave = jalali[0] + '/' + jalali[1] + '/' + jalali[2];
+
+            // یافتن و به‌روزرسانی رکورد
+            var entryUpdated = false;
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].row === editingEntryRow) {
+                    entries[i] = {
+                        row: editingEntryRow,
+                        date: dateToSave,
+                        description: description,
+                        type: type,
+                        amount: amount,
+                        category: category,
+                        timestamp: new Date().toISOString()
+                    };
+                    entryUpdated = true;
+                    break;
+                }
+            }
+            
+            if (entryUpdated) {
+                debouncedSave();
+                updateDisplay();
+                updateBalance();
+                hideEditModal();
+                editingEntryRow = null;
+                
+                showNotification(t('recordEdited'), 'success');
+            } else {
+                showNotification('❌ خطا در ویرایش رکورد', 'error');
+            }
+        }
+
+        function deleteSingleEntry(row) {
+            if (confirm(t('deleteConfirm'))) {
+                for (var i = 0; i < entries.length; i++) {
+                    if (entries[i].row === row) {
+                        entries.splice(i, 1);
+                        // حذف تاریخچه مربوطه
+                        delete entryHistory[row];
+                        debouncedSave();
+                        updateDisplay();
+                        updateBalance();
+                        showNotification(t('recordDeleted'), 'success');
+                        break;
+                    }
+                }
+            }
+        }
+
+        function showSaveStatus(message) {
+            var statusElement = document.getElementById('saveStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+                statusElement.style.color = '#27ae60';
+                
+                setTimeout(function() {
+                    statusElement.textContent = t('allChangesSaved');
+                    statusElement.style.color = '#27ae60';
+                }, 3000);
+            }
+        }
+
+        function hideEditModal() {
+            var modal = document.getElementById('editModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            editingEntryRow = null;
+            resetEditForm();
+        }
+
+        function resetEditForm() {
+            var descInput = document.getElementById('editDescription');
+            var amountInput = document.getElementById('editAmount');
+            var typeSelect = document.getElementById('editType');
+            var categorySelect = document.getElementById('editCategory');
+            var dateInput = document.getElementById('editDate');
+            
+            if (descInput) descInput.value = '';
+            if (amountInput) amountInput.value = '';
+            if (typeSelect) typeSelect.value = 'income';
+            if (categorySelect) categorySelect.value = categories[0] || t('general');
+            
+            if (dateInput) {
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = today.getMonth() + 1;
+                var day = today.getDate();
+                
+                var formattedDate = year + '-' + 
+                                   (month < 10 ? '0' + month : month) + '-' + 
+                                   (day < 10 ? '0' + day : day);
+                dateInput.value = formattedDate;
+            }
+        }
+
+        // ==================== مدیریت کلمات آماده ====================
+        function showWordsManager() {
+            var modal = document.getElementById('wordsManagerModal');
+            if (modal) {
+                modal.style.display = 'block';
+                updateWordsList();
+                setTimeout(function() {
+                    var newWordInput = document.getElementById('newWord');
+                    if (newWordInput) {
+                        newWordInput.focus();
+                    }
+                }, 100);
+            }
+        }
+
+        function hideWordsManager() {
+            var modal = document.getElementById('wordsManagerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            var newWordInput = document.getElementById('newWord');
+            if (newWordInput) {
+                newWordInput.value = '';
+            }
+        }
+
+        function addNewWord() {
+            var newWordInput = document.getElementById('newWord');
+            if (!newWordInput) return;
+            
+            var newWord = newWordInput.value.trim();
+            
+            if (!newWord) {
+                showNotification('لطفاً کلمه را وارد کنید.', 'error');
+                return;
+            }
+            
+            if (suggestedWords.includes(newWord)) {
+                showNotification('این کلمه قبلاً اضافه شده است.', 'error');
+                return;
+            }
+            
+            suggestedWords.push(newWord);
+            localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+            
+            newWordInput.value = '';
+            updateWordsList();
+            
+            showNotification(t('wordAdded'), 'success');
+        }
+
+        function updateWordsList() {
+            var wordsList = document.getElementById('wordsList');
+            if (!wordsList) return;
+            
+            wordsList.innerHTML = '';
+            
+            for (var i = 0; i < suggestedWords.length; i++) {
+                var wordItem = document.createElement('div');
+                wordItem.className = 'word-item';
+                wordItem.innerHTML = 
+                    '<div class="word-text">' + suggestedWords[i] + '</div>' +
+                    '<div class="word-actions">' +
+                    '<button class="btn-edit-word" onclick="editWordItem(' + i + ')" aria-label="ویرایش کلمه">' + t('editWord') + '</button>' +
+                    '<button class="btn-delete-word" onclick="deleteWord(' + i + ')" aria-label="حذف کلمه">' + t('deleteWord') + '</button>' +
+                    '</div>';
+                wordsList.appendChild(wordItem);
+            }
+        }
+
+        function editWordItem(index) {
+            var newWord = prompt(t('editWord') + ' "' + suggestedWords[index] + '":', suggestedWords[index]);
+            if (newWord !== null && newWord.trim() !== '') {
+                suggestedWords[index] = newWord.trim();
+                localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+                updateWordsList();
+                showNotification(t('wordEdited'), 'success');
+            }
+        }
+
+        function deleteWord(index) {
+            if (confirm(t('deleteConfirm'))) {
+                suggestedWords.splice(index, 1);
+                localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+                updateWordsList();
+                showNotification(t('wordDeleted'), 'success');
+            }
+        }
+
+        // ==================== سیستم پیشنهاد کلمات ====================
+        function toggleSuggestions() {
+            var suggestions = document.getElementById('descriptionSuggestions');
+            var arrow = document.querySelector('.dropdown-arrow');
+            
+            if (!suggestions || !arrow) return;
+            
+            if (suggestions.classList.contains('show')) {
+                suggestions.classList.remove('show');
+                arrow.classList.remove('rotated');
+                arrow.setAttribute('aria-label', 'نمایش پیشنهادات');
+            } else {
+                showSuggestions();
+                arrow.classList.add('rotated');
+                arrow.setAttribute('aria-label', 'مخفی کردن پیشنهادات');
+            }
+        }
+
+        function showSuggestions() {
+            var input = document.getElementById('editDescription');
+            var suggestions = document.getElementById('descriptionSuggestions');
+            
+            if (!input || !suggestions) return;
+            
+            var searchTerm = input.value.toLowerCase();
+            currentSuggestions = [];
+            
+            if (searchTerm === '') {
+                currentSuggestions = suggestedWords.slice(0, 10);
+            } else {
+                for (var i = 0; i < suggestedWords.length; i++) {
+                    if (suggestedWords[i].toLowerCase().includes(searchTerm)) {
+                        currentSuggestions.push(suggestedWords[i]);
+                        if (currentSuggestions.length >= 10) break;
+                    }
+                }
+            }
+            
+            suggestions.innerHTML = '';
+            
+            if (currentSuggestions.length === 0) {
+                suggestions.innerHTML = '<div class="suggestion-item">' + t('noResults') + '</div>';
+            } else {
+                for (var i = 0; i < currentSuggestions.length; i++) {
+                    var item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = currentSuggestions[i];
+                    item.setAttribute('data-index', i);
+                    item.setAttribute('role', 'option');
+                    item.onclick = function() {
+                        selectSuggestion(parseInt(this.getAttribute('data-index')));
+                    };
+                    item.onmouseover = function() {
+                        setActiveSuggestion(parseInt(this.getAttribute('data-index')));
+                    };
+                    suggestions.appendChild(item);
+                }
+            }
+            
+            suggestions.classList.add('show');
+            selectedSuggestionIndex = -1;
+        }
+
+        function hideSuggestions() {
+            var suggestions = document.getElementById('descriptionSuggestions');
+            var arrow = document.querySelector('.dropdown-arrow');
+            
+            if (suggestions) {
+                suggestions.classList.remove('show');
+            }
+            if (arrow) {
+                arrow.classList.remove('rotated');
+                arrow.setAttribute('aria-label', 'نمایش پیشنهادات');
+            }
+            selectedSuggestionIndex = -1;
+        }
+
+        function setActiveSuggestion(index) {
+            var items = document.querySelectorAll('.suggestion-item');
+            items.forEach(function(item, i) {
+                if (i === index) {
+                    item.classList.add('active');
+                    item.setAttribute('aria-selected', 'true');
+                } else {
+                    item.classList.remove('active');
+                    item.setAttribute('aria-selected', 'false');
+                }
+            });
+            selectedSuggestionIndex = index;
+        }
+
+        function selectSuggestion(index) {
+            if (index >= 0 && index < currentSuggestions.length) {
+                document.getElementById('editDescription').value = currentSuggestions[index];
+                hideSuggestions();
+            }
+        }
+
+        // ==================== سیستم زبان و منوی کشویی ====================
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            const button = document.querySelector('.language-button');
+            
+            if (dropdown) {
+                const isShowing = dropdown.classList.contains('show');
+                dropdown.classList.toggle('show');
+                if (button) {
+                    button.setAttribute('aria-expanded', !isShowing);
+                }
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('journalLanguage', lang);
+            
+            // تنظیم dir برای زبان‌های مختلف
+            const htmlElement = document.querySelector('html');
+            if (htmlElement) {
+                if (lang === 'ar' || lang === 'fa' || lang === 'ku') {
+                    htmlElement.setAttribute('dir', 'rtl');
+                } else {
+                    htmlElement.setAttribute('dir', 'ltr');
+                }
+            }
+            
+            const savedWords = localStorage.getItem('suggestedWords');
+            if (!savedWords || savedWords === '[]') {
+                suggestedWords = defaultWordsByLang[lang] || defaultWordsByLang['fa'];
+                localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+            }
+            
+            const savedCategories = localStorage.getItem('journalCategories');
+            if (!savedCategories || savedCategories === '[]') {
+                categories = defaultCategoriesByLang[lang] || defaultCategoriesByLang['fa'];
+                localStorage.setItem('journalCategories', JSON.stringify(categories));
+            }
+            
+            applyTranslations();
+            updateHorizontalSummary();
+            updateCategoriesDropdown();
+            updateDateFormatDisplay();
+            updateCurrencyDisplay();
+            updateDisplay();
+            
+            const langDisplay = document.getElementById('currentLangDisplay');
+            if (langDisplay) {
+                const langNames = {
+                    'fa': 'فارسی',
+                    'en': 'English',
+                    'ku': 'کوردی',
+                    'ar': 'عربی'
+                };
+                langDisplay.textContent = langNames[lang] || 'فارسی';
+            }
+            
+            const dropdown = document.getElementById('languageDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+            
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            const activeOption = document.querySelector(`.language-option[onclick*="${lang}"]`);
+            if (activeOption) {
+                activeOption.classList.add('active');
+            }
+            
+            showNotification('✅ زبان تغییر کرد', 'success');
+        }
+
+        function initializeLanguageDisplay() {
+            const langDisplay = document.getElementById('currentLangDisplay');
+            if (langDisplay) {
+                const langNames = {
+                    'fa': 'فارسی',
+                    'en': 'English',
+                    'ku': 'کوردی',
+                    'ar': 'عربی'
+                };
+                langDisplay.textContent = langNames[currentLanguage] || 'فارسی';
+            }
+            
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            const activeOption = document.querySelector(`.language-option[onclick*="${currentLanguage}"]`);
+            if (activeOption) {
+                activeOption.classList.add('active');
+            }
+        }
+
+        // ==================== ترجمه عناصر ====================
+        function applyTranslations() {
+            document.getElementById('journalTitle').textContent = t('journalTitle');
+            document.getElementById('journalSubtitle').textContent = t('journalSubtitle');
+            document.getElementById('lockScreenTitle').textContent = t('lockedTitle');
+            document.getElementById('enterPasswordText').textContent = t('enterPassword');
+            document.getElementById('passwordInput').placeholder = t('passwordPlaceholder');
+            document.getElementById('unlockBtn').innerHTML = t('unlockButton');
+            document.getElementById('passwordTip').innerHTML = t('passwordTip');
+            
+            document.getElementById('pageInfo').innerHTML = t('page') + ': <span id="currentPage">1</span> ' + t('of') + ' <span id="totalPages">1</span>';
+            document.getElementById('prevPageBtn').textContent = t('previousPage');
+            document.getElementById('addRecordBtn').innerHTML = t('add');
+            document.getElementById('searchBtn').innerHTML = t('search');
+            document.getElementById('nextPageBtn').textContent = t('nextPage');
+            
+            document.getElementById('dateHeader').textContent = t('date');
+            document.getElementById('rowHeader').textContent = t('row');
+            document.getElementById('descriptionHeader').textContent = t('description');
+            document.getElementById('paymentHeader').textContent = t('payment');
+            document.getElementById('receiptHeader').textContent = t('receipt');
+            document.getElementById('categoryHeader').textContent = t('category');
+            document.getElementById('editHeader').textContent = t('edit');
+            
+            document.getElementById('horizontalExpenseTitle').textContent = t('totalPayments');
+            document.getElementById('horizontalIncomeTitle').textContent = t('totalReceipts');
+            document.getElementById('horizontalBalanceTitle').textContent = t('accountBalance');
+            
+            document.getElementById('saveStatus').innerHTML = t('allChangesSaved');
+            
+            document.getElementById('searchTitle').textContent = t('searchInJournal');
+            document.getElementById('searchLabel').textContent = t('searchTerm');
+            document.getElementById('searchQuery').placeholder = t('searchPlaceholder');
+            document.getElementById('executeSearchBtn').innerHTML = t('executeSearch');
+            
+            document.getElementById('settingsBtn').innerHTML = t('programSettings');
+            document.getElementById('backupBtn').innerHTML = t('backupManagement');
+            document.getElementById('printBtn').innerHTML = t('printJournal');
+            document.getElementById('operationsBtn').innerHTML = t('basicOperations');
+            document.getElementById('reportsBtn').innerHTML = t('reports');
+            document.getElementById('deleteBtn').innerHTML = t('deleteManagement');
+            document.getElementById('wordsBtn').innerHTML = t('wordsManagement');
+            document.getElementById('categoriesBtn').innerHTML = t('categoriesManagement');
+            document.getElementById('closeSaveBtn').innerHTML = t('closeSave');
+            
+            document.getElementById('editModalTitle').textContent = t('addNewRecord');
+            document.getElementById('dateLabel').textContent = t('date');
+            document.getElementById('descriptionLabel').textContent = t('description');
+            document.getElementById('editDescription').placeholder = t('description') + '...';
+            document.getElementById('typeLabel').textContent = t('type');
+            document.getElementById('amountLabel').textContent = t('amount') + ' (' + currencyRates[currency].symbol + ')';
+            document.getElementById('categoryLabel').textContent = t('category');
+            document.getElementById('addRecordModalBtn').innerHTML = t('addRecord');
+            document.getElementById('cancelBtn').innerHTML = t('cancel');
+            
+            var typeSelect = document.getElementById('editType');
+            if (typeSelect) {
+                for (var i = 0; i < typeSelect.options.length; i++) {
+                    var option = typeSelect.options[i];
+                    if (option.value === 'income') option.text = t('income');
+                    else if (option.value === 'expense') option.text = t('expense');
+                    else if (option.value === 'debt') option.text = t('debt');
+                    else if (option.value === 'credit') option.text = t('credit');
+                }
+            }
+            
+            document.getElementById('wordsManagerTitle').textContent = t('wordsManager');
+            document.getElementById('newWordLabel').textContent = t('newWord');
+            document.getElementById('newWord').placeholder = t('newWordPlaceholder');
+            document.getElementById('addWordBtn').innerHTML = t('addWord');
+            document.getElementById('existingWordsTitle').textContent = t('existingWords');
+            document.getElementById('closeWordsBtn').innerHTML = t('closeWords');
+            
+            document.getElementById('categoriesManagerTitle').textContent = t('categoriesManager');
+            document.getElementById('newCategoryLabel').textContent = t('newCategory');
+            document.getElementById('newCategory').placeholder = t('newCategoryPlaceholder');
+            document.getElementById('addCategoryBtn').innerHTML = t('addCategory');
+            document.getElementById('existingCategoriesTitle').textContent = t('existingCategories');
+            document.getElementById('closeCategoriesBtn').innerHTML = t('closeCategories');
+            
+            document.getElementById('restoreModalTitle').textContent = t('restoreBackup');
+            document.getElementById('selectBackupLabel').textContent = t('selectBackup');
+            document.getElementById('selectBackupFileLabel').innerHTML = t('selectBackupFile');
+            document.getElementById('restoreBackupBtn').innerHTML = t('restoreComplete');
+            document.getElementById('cancelRestoreBtn').innerHTML = t('cancelRestore');
+            
+            document.getElementById('journalNameModalTitle').textContent = t('journalNameSettings');
+            document.getElementById('journalNameLabel').textContent = t('journalName');
+            document.getElementById('journalNameInput').placeholder = t('journalName') + '...';
+            document.getElementById('journalSubtitleLabel').textContent = t('journalSubtitle');
+            document.getElementById('journalSubtitleInput').placeholder = t('journalSubtitle') + '...';
+            document.getElementById('saveJournalNameBtn').innerHTML = t('saveName');
+            document.getElementById('cancelJournalNameBtn').innerHTML = t('cancel');
+            
+            document.getElementById('passwordSettingsTitle').textContent = t('passwordSettings');
+            document.getElementById('currentPasswordLabel').textContent = t('currentPassword');
+            document.getElementById('currentPasswordInput').placeholder = t('currentPassword');
+            document.getElementById('newPasswordLabel').textContent = t('newPassword');
+            document.getElementById('newPasswordInput').placeholder = t('passwordPlaceholder');
+            document.getElementById('confirmPasswordLabel').textContent = t('confirmPassword');
+            document.getElementById('confirmPasswordInput').placeholder = t('confirmPassword');
+            document.getElementById('savePasswordBtn').innerHTML = t('savePassword');
+            document.getElementById('cancelPasswordBtn').innerHTML = t('cancel');
+            
+            document.getElementById('settingsSection').querySelector('h3').textContent = t('programSettings');
+            document.getElementById('backupSection').querySelector('h3').textContent = t('backupManagement');
+            document.getElementById('createBackupBtn').innerHTML = t('restoreBackup') + ' (JSON)';
+            document.getElementById('restoreBackupBtn').innerHTML = t('restoreComplete');
+            document.getElementById('exportExcelBtn').innerHTML = t('exportExcel');
+            
+            updateWordsList();
+            updateCategoriesList();
+            updateBalance();
+        }
+
+        function updateHorizontalSummary() {
+            const horizontalExpenseTitle = document.getElementById('horizontalExpenseTitle');
+            const horizontalIncomeTitle = document.getElementById('horizontalIncomeTitle');
+            const horizontalBalanceTitle = document.getElementById('horizontalBalanceTitle');
+            
+            if (horizontalExpenseTitle) horizontalExpenseTitle.textContent = t('totalPayments');
+            if (horizontalIncomeTitle) horizontalIncomeTitle.textContent = t('totalReceipts');
+            if (horizontalBalanceTitle) horizontalBalanceTitle.textContent = t('accountBalance');
+        }
+
+        // ==================== سیستم واحد پول ====================
+        function toggleCurrencySettings() {
+            showCurrencySettings();
+        }
+
+        function showCurrencySettings() {
+            var modal = document.getElementById('currencySettingsModal');
+            if (modal) {
+                modal.style.display = 'block';
+                
+                var currencySelect = document.getElementById('currencySelect');
+                var currencyRate = document.getElementById('currencyRate');
+                
+                if (currencySelect) {
+                    currencySelect.value = currency;
+                }
+                
+                if (currencyRate) {
+                    currencyRate.value = currencyRates[currency].rate;
+                }
+                
+                updateCurrencyPreview();
+            }
+        }
+
+        function hideCurrencySettings() {
+            var modal = document.getElementById('currencySettingsModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function updateCurrencyPreview() {
+            var currencySelect = document.getElementById('currencySelect');
+            var currencyRate = document.getElementById('currencyRate');
+            var preview = document.getElementById('currencyPreview');
+            
+            if (!currencySelect || !currencyRate || !preview) return;
+            
+            var selectedCurrency = currencySelect.value;
+            var rate = parseFloat(currencyRate.value) || 1;
+            
+            var exampleAmount = 100000;
+            var convertedAmount = exampleAmount / rate;
+            
+            preview.textContent = numberWithCommas(exampleAmount) + ' تومان = ' + 
+                                numberWithCommas(convertedAmount.toFixed(2)) + ' ' + 
+                                currencyRates[selectedCurrency].symbol;
+        }
+
+        function saveCurrencySettings() {
+            var currencySelect = document.getElementById('currencySelect');
+            var currencyRate = document.getElementById('currencyRate');
+            
+            if (!currencySelect || !currencyRate) return;
+            
+            var newCurrency = currencySelect.value;
+            var newRate = parseFloat(currencyRate.value);
+            
+            if (!newRate || newRate <= 0) {
+                showNotification('❌ لطفاً نرخ تبدیل معتبر وارد کنید', 'error');
+                return;
+            }
+            
+            currency = newCurrency;
+            currencyRates[currency].rate = newRate;
+            
+            localStorage.setItem('journalCurrency', currency);
+            localStorage.setItem('currencyRates', JSON.stringify(currencyRates));
+            
+            hideCurrencySettings();
+            updateCurrencyDisplay();
+            updateDisplay();
+            updateBalance();
+            
+            showNotification(t('currencyChanged'), 'success');
+        }
+
+        // ==================== گزارش‌های نموداری ====================
+        function showReportsModal() {
+            // ایجاد مودال گزارش‌ها
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'reportsModal';
+            modal.style.display = 'block';
+            modal.setAttribute('role', 'dialog');
+            modal.setAttribute('aria-label', 'گزارش‌های نموداری');
+            modal.setAttribute('aria-modal', 'true');
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2>📊 گزارش‌های نموداری</h2>
+                    </div>
+                    
+                    <div class="reports-tabs" role="tablist">
+                        <button class="tab-btn active" onclick="switchReportTab('category')" role="tab" aria-selected="true">📈 دسته‌بندی‌ها</button>
+                        <button class="tab-btn" onclick="switchReportTab('type')" role="tab" aria-selected="false">💰 نوع معامله</button>
+                    </div>
+                    
+                    <div id="categoryReport" class="report-tab" role="tabpanel">
+                        <h3>📊 توزیع هزینه‌ها بر اساس دسته‌بندی</h3>
+                        <div style="height: 400px; position: relative;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        <div id="categoryStats" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div id="typeReport" class="report-tab" style="display: none;" role="tabpanel">
+                        <h3>💰 توزیع نوع معاملات</h3>
+                        <div style="height: 400px; position: relative;">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                        <div id="typeStats" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 30px;">
+                        <button class="btn-save" onclick="printReport()" aria-label="چاپ گزارش">🖨️ چاپ گزارش</button>
+                        <button class="btn-cancel" onclick="hideReportsModal()" aria-label="بستن">❌ بستن</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // بارگذاری چارت دسته‌بندی
+            setTimeout(() => {
+                generateCategoryReport();
+            }, 100);
+        }
+
+        function switchReportTab(tabName) {
+            // مخفی کردن همه تب‌ها
+            document.querySelectorAll('.report-tab').forEach(tab => {
+                tab.style.display = 'none';
+                tab.setAttribute('aria-hidden', 'true');
+            });
+            
+            // غیرفعال کردن همه دکمه‌ها
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            
+            // نمایش تب انتخاب شده
+            const selectedTab = document.getElementById(tabName + 'Report');
+            const selectedBtn = document.querySelector(`.tab-btn[onclick*="${tabName}"]`);
+            
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+                selectedTab.setAttribute('aria-hidden', 'false');
+            }
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                selectedBtn.setAttribute('aria-selected', 'true');
+            }
+            
+            // تولید گزارش مربوطه
+            switch(tabName) {
+                case 'category':
+                    generateCategoryReport();
+                    break;
+                case 'type':
+                    generateTypeReport();
+                    break;
+            }
+        }
+
+        function generateCategoryReport() {
+            const stats = {};
+            
+            // محاسبه آمار دسته‌بندی‌ها
+            entries.forEach(entry => {
+                if (!stats[entry.category]) {
+                    stats[entry.category] = {
+                        income: 0,
+                        expense: 0,
+                        count: 0
+                    };
+                }
+                
+                if (entry.type === 'income' || entry.type === 'debt') {
+                    stats[entry.category].income += entry.amount;
+                } else {
+                    stats[entry.category].expense += entry.amount;
+                }
+                stats[entry.category].count++;
+            });
+            
+            // نمایش آمار
+            const statsElement = document.getElementById('categoryStats');
+            if (statsElement) {
+                let html = '<h4>آمار دسته‌بندی‌ها:</h4><ul style="list-style: none; padding: 0;">';
+                
+                Object.keys(stats).forEach(category => {
+                    const total = stats[category].income + stats[category].expense;
+                    html += `<li style="padding: 5px 0; border-bottom: 1px solid #eee;">
+                        <strong>${category}:</strong> ${stats[category].count} تراکنش - 
+                        کل مبلغ: ${formatCurrency(total)}
+                    </li>`;
+                });
+                
+                html += '</ul>';
+                statsElement.innerHTML = html;
+            }
+        }
+
+        function generateTypeReport() {
+            const stats = {
+                income: { amount: 0, count: 0 },
+                expense: { amount: 0, count: 0 },
+                debt: { amount: 0, count: 0 },
+                credit: { amount: 0, count: 0 }
+            };
+            
+            // محاسبه آمار نوع معاملات
+            entries.forEach(entry => {
+                if (stats[entry.type]) {
+                    stats[entry.type].amount += entry.amount;
+                    stats[entry.type].count++;
+                }
+            });
+            
+            // نمایش آمار
+            const statsElement = document.getElementById('typeStats');
+            if (statsElement) {
+                let html = '<h4>آمار نوع معاملات:</h4><ul style="list-style: none; padding: 0;">';
+                
+                const typeNames = {
+                    income: 'دریافت',
+                    expense: 'پرداخت',
+                    debt: 'طلب',
+                    credit: 'بدهی'
+                };
+                
+                Object.keys(stats).forEach(type => {
+                    if (stats[type].count > 0) {
+                        html += `<li style="padding: 5px 0; border-bottom: 1px solid #eee;">
+                            <strong>${typeNames[type]}:</strong> ${stats[type].count} تراکنش - 
+                            کل مبلغ: ${formatCurrency(stats[type].amount)}
+                        </li>`;
+                    }
+                });
+                
+                html += '</ul>';
+                statsElement.innerHTML = html;
+            }
+        }
+
+        function hideReportsModal() {
+            const modal = document.getElementById('reportsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // ==================== توابع چاپ و خروجی ====================
+        function printJournal() {
+            // ذخیره وضعیت فعلی جستجو
+            const hasSearch = searchResults.length > 0;
+            const originalSearchResults = [...searchResults];
+            const originalCurrentPage = currentPage;
+            
+            // اگر جستجو فعال است، آن را غیرفعال کن برای چاپ همه رکوردها
+            if (hasSearch) {
+                searchResults = [];
+                currentPage = 1;
+                updateDisplay();
+            }
+            
+            // ایجاد یک پنجره جدید برای چاپ
+            const printWindow = window.open('', '_blank');
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('fa-IR');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>چاپ دفتر روزنامه</title>
+                    <style>
+                        body {
+                            font-family: 'Tahoma', 'Arial', sans-serif;
+                            direction: rtl;
+                            text-align: right;
+                            padding: 20px;
+                            color: #333;
+                        }
+                        h1 {
+                            text-align: center;
+                            color: #2c3e50;
+                            margin-bottom: 10px;
+                        }
+                        .print-date {
+                            text-align: center;
+                            color: #7f8c8d;
+                            margin-bottom: 30px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th {
+                            background-color: #2c3e50;
+                            color: white;
+                            padding: 12px 8px;
+                            text-align: center;
+                            border: 1px solid #4a6572;
+                        }
+                        td {
+                            padding: 10px 8px;
+                            text-align: center;
+                            border: 1px solid #ddd;
+                        }
+                        tr:nth-child(odd) {
+                            background-color: white;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #C0C0C0;
+                        }
+                        .income {
+                            color: #27ae60;
+                            font-weight: bold;
+                        }
+                        .expense {
+                            color: #e74c3c;
+                            font-weight: bold;
+                        }
+                        .summary {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 30px;
+                            padding: 15px;
+                            background-color: #f8f9fa;
+                            border: 2px solid #dee2e6;
+                            border-radius: 8px;
+                        }
+                        .summary-column {
+                            text-align: center;
+                            flex: 1;
+                            padding: 10px;
+                        }
+                        .summary-column h4 {
+                            margin-bottom: 5px;
+                            color: #2c3e50;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                            .no-print {
+                                display: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${journalName}</h1>
+                    <div class="print-date">تاریخ چاپ: ${formattedDate}</div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">ردیف</th>
+                                <th width="10%">تاریخ</th>
+                                <th width="30%">شرح</th>
+                                <th width="15%">پرداخت</th>
+                                <th width="15%">دریافت</th>
+                                <th width="15%">دسته‌بندی</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `);
+            
+            // اضافه کردن رکوردها
+            entries.forEach(entry => {
+                const amountDisplay = formatCurrency(entry.amount);
+                const paymentCell = (entry.type === 'expense' || entry.type === 'credit') ? 
+                    `<td class="expense">${amountDisplay}</td>` : '<td></td>';
+                const receiptCell = (entry.type === 'income' || entry.type === 'debt') ? 
+                    `<td class="income">${amountDisplay}</td>` : '<td></td>';
+                
+                printWindow.document.write(`
+                    <tr>
+                        <td>${toPersianNumber(entry.row)}</td>
+                        <td>${formatDate(entry.date)}</td>
+                        <td style="text-align: right; padding-right: 15px;">${entry.description}</td>
+                        ${paymentCell}
+                        ${receiptCell}
+                        <td>${entry.category}</td>
+                    </tr>
+                `);
+            });
+            
+            // محاسبه خلاصه
+            let totalIncome = 0, totalExpense = 0, totalDebt = 0, totalCredit = 0;
+            entries.forEach(entry => {
+                if (entry.type === 'income') totalIncome += entry.amount;
+                else if (entry.type === 'expense') totalExpense += entry.amount;
+                else if (entry.type === 'debt') totalDebt += entry.amount;
+                else if (entry.type === 'credit') totalCredit += entry.amount;
+            });
+            
+            const totalReceipts = totalIncome + totalDebt;
+            const totalPayments = totalExpense + totalCredit;
+            const balance = totalReceipts - totalPayments;
+            
+            printWindow.document.write(`
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary">
+                        <div class="summary-column">
+                            <h4>جمع پرداخت‌ها</h4>
+                            <div class="expense" style="font-size: 1.2em; font-weight: bold;">${formatCurrency(totalPayments)}</div>
+                        </div>
+                        <div class="summary-column">
+                            <h4>جمع دریافت‌ها</h4>
+                            <div class="income" style="font-size: 1.2em; font-weight: bold;">${formatCurrency(totalReceipts)}</div>
+                        </div>
+                        <div class="summary-column">
+                            <h4>مانده حساب</h4>
+                            <div style="font-size: 1.2em; font-weight: bold; color: ${balance >= 0 ? '#27ae60' : '#e74c3c'}">
+                                ${formatCurrency(Math.abs(balance))}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; color: #7f8c8d; font-size: 0.9em;">
+                        تعداد کل رکوردها: ${toPersianNumber(entries.length)}
+                    </div>
+                    
+                    <button class="no-print" onclick="window.print()" style="
+                        display: block;
+                        margin: 30px auto;
+                        padding: 12px 24px;
+                        background: #3498db;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 16px;
+                        cursor: pointer;
+                    ">
+                        🖨️ چاپ صفحه
+                    </button>
+                    
+                    <script>
+                        // اتوماتیک باز کردن پنجره چاپ
+                        setTimeout(function() {
+                            window.print();
+                        }, 500);
+                    <\/script>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // بازگرداندن وضعیت قبلی
+            if (hasSearch) {
+                searchResults = originalSearchResults;
+                currentPage = originalCurrentPage;
+                updateDisplay();
+            }
+            
+            showNotification(t('printSuccess'), 'success');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportToExcel() {
+            // محاسبه خلاصه
+            let totalIncome = 0, totalExpense = 0, totalDebt = 0, totalCredit = 0;
+            entries.forEach(entry => {
+                if (entry.type === 'income') totalIncome += entry.amount;
+                else if (entry.type === 'expense') totalExpense += entry.amount;
+                else if (entry.type === 'debt') totalDebt += entry.amount;
+                else if (entry.type === 'credit') totalCredit += entry.amount;
+            });
+            
+            const totalReceipts = totalIncome + totalDebt;
+            const totalPayments = totalExpense + totalCredit;
+            const balance = totalReceipts - totalPayments;
+            
+            // ایجاد داده CSV
+            let csvData = "ردیف,تاریخ,شرح,نوع,مبلغ,دسته‌بندی,واحد پول\n";
+            
+            entries.forEach(entry => {
+                const typeText = 
+                    entry.type === 'income' ? 'دریافت' :
+                    entry.type === 'expense' ? 'پرداخت' :
+                    entry.type === 'debt' ? 'طلب' : 'بدهی';
+                
+                csvData += `${entry.row},"${formatDate(entry.date)}","${entry.description}",${typeText},${entry.amount},${entry.category},${currencyRates[currency].symbol}\n`;
+            });
+            
+            // اضافه کردن خلاصه
+            csvData += `\nخلاصه حساب‌ها\n`;
+            csvData += `جمع پرداخت‌ها,${totalPayments}\n`;
+            csvData += `جمع دریافت‌ها,${totalReceipts}\n`;
+            csvData += `مانده حساب,${balance}\n`;
+            csvData += `تعداد کل رکوردها,${entries.length}\n`;
+            csvData += `تاریخ خروجی,${new Date().toLocaleDateString('fa-IR')}\n`;
+            
+            // ایجاد فایل CSV
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const today = new Date();
+            const fileName = `دفتر-روزنامه-${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}.csv`;
+            
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(t('exportExcelSuccess'), 'success');
+        }
+
+        // ==================== بقیه توابع برنامه ====================
+        function toggleSection(sectionId) {
+            var sections = ['settingsSection', 'backupSection'];
+            for (var i = 0; i < sections.length; i++) {
+                var element = document.getElementById(sections[i]);
+                if (element) {
+                    element.classList.remove('show');
+                }
+            }
+            
+            var selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add('show');
+            }
+        }
+
+        function toggleSearch() {
+            var searchSection = document.getElementById('searchSection');
+            if (searchSection) {
+                searchSection.classList.toggle('show');
+            }
+        }
+
+        function performSearch() {
+            var searchQuery = document.getElementById('searchQuery');
+            if (!searchQuery) return;
+            
+            var query = searchQuery.value.trim().toLowerCase();
+            
+            if (!query) {
+                showNotification('لطفاً عبارت جستجو را وارد کنید.', 'error');
+                return;
+            }
+            
+            currentSearchQuery = query;
+            searchResults = [];
+            
+            for (var i = 0; i < entries.length; i++) {
+                var entry = entries[i];
+                if (entry.description.toLowerCase().includes(query) ||
+                    entry.category.toLowerCase().includes(query) ||
+                    entry.type.toLowerCase().includes(query) ||
+                    entry.amount.toString().includes(query)) {
+                    searchResults.push(entry);
+                }
+            }
+            
+            currentPage = 1;
+            updateDisplay();
+            
+            var resultsElement = document.getElementById('searchResults');
+            if (resultsElement) {
+                if (searchResults.length === 0) {
+                    resultsElement.innerHTML = '<div class="search-summary"><h4>' + t('searchResults') + '</h4><p>' + t('noResults') + '</p></div>';
+                } else {
+                    resultsElement.innerHTML = '<div class="search-summary"><h4>' + t('searchResults') + '</h4><p>' + searchResults.length + ' ' + t('resultsFound') + '</p></div>';
+                }
+            }
+        }
+
+        function changePage(direction) {
+            var totalPages = Math.ceil((searchResults.length > 0 ? searchResults : entries).length / recordsPerPage);
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            updateDisplay();
+        }
+
+        function toggleDateFormat() {
+            dateFormat = dateFormat === 'jalali' ? 'gregorian' : 'jalali';
+            localStorage.setItem('journalDateFormat', dateFormat);
+            updateDateFormatDisplay();
+            updateDisplay();
+            updateTodayDate();
+        }
+
+        function updateDateFormatDisplay() {
+            var displayElement = document.getElementById('dateFormatDisplay');
+            if (displayElement) {
+                displayElement.textContent = dateFormat === 'jalali' ? t('dateFormat') : t('gregorianDateFormat');
+            }
+        }
+
+        function toggleOperationsButtons() {
+            var operationsButtons = document.getElementById('operationsButtons');
+            var operationsBtn = document.getElementById('operationsBtn');
+            
+            if (operationsButtons) {
+                const isShowing = operationsButtons.classList.contains('show');
+                operationsButtons.classList.toggle('show');
+                if (operationsBtn) {
+                    operationsBtn.setAttribute('aria-expanded', !isShowing);
+                }
+            }
+        }
+
+        function showDeleteOptions() {
+            if (confirm('آیا می‌خواهید تمام رکوردها را حذف کنید؟\nاین عمل قابل بازگشت نیست.')) {
+                entries = [];
+                currentRow = 1;
+                entryHistory = {};
+                debouncedSave();
+                updateDisplay();
+                updateBalance();
+                showNotification('✅ تمام رکوردها حذف شدند', 'success');
+            }
+        }
+
+        function confirmExit() {
+            safeSaveData();
+            alert('✅ برنامه با موفقیت ذخیره شد.\nمی‌توانید برگه را ببندید.');
+        }
+
+        function showJournalNameSettings() {
+            var modal = document.getElementById('journalNameModal');
+            if (modal) {
+                modal.style.display = 'block';
+                var nameInput = document.getElementById('journalNameInput');
+                var subtitleInput = document.getElementById('journalSubtitleInput');
+                if (nameInput) nameInput.value = journalName;
+                if (subtitleInput) subtitleInput.value = journalSubtitle;
+            }
+        }
+
+        function hideJournalNameSettings() {
+            var modal = document.getElementById('journalNameModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function saveJournalName() {
+            var nameInput = document.getElementById('journalNameInput');
+            var subtitleInput = document.getElementById('journalSubtitleInput');
+            
+            if (nameInput && subtitleInput) {
+                journalName = nameInput.value.trim() || t('journalTitle');
+                journalSubtitle = subtitleInput.value.trim() || t('journalSubtitle');
+                
+                localStorage.setItem('journalName', journalName);
+                localStorage.setItem('journalSubtitle', journalSubtitle);
+                
+                document.getElementById('journalTitle').textContent = journalName;
+                document.getElementById('journalSubtitle').textContent = journalSubtitle;
+                
+                hideJournalNameSettings();
+                showNotification('✅ نام دفتر با موفقیت ذخیره شد', 'success');
+            }
+        }
+
+        function showPasswordSettings() {
+            var modal = document.getElementById('passwordSettingsModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function hidePasswordSettings() {
+            var modal = document.getElementById('passwordSettingsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                var currentPasswordInput = document.getElementById('currentPasswordInput');
+                var newPasswordInput = document.getElementById('newPasswordInput');
+                var confirmPasswordInput = document.getElementById('confirmPasswordInput');
+                if (currentPasswordInput) currentPasswordInput.value = '';
+                if (newPasswordInput) newPasswordInput.value = '';
+                if (confirmPasswordInput) confirmPasswordInput.value = '';
+            }
+        }
+
+        function saveNewPassword() {
+            var currentPasswordInput = document.getElementById('currentPasswordInput');
+            var newPasswordInput = document.getElementById('newPasswordInput');
+            var confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            
+            if (!currentPasswordInput || !newPasswordInput || !confirmPasswordInput) return;
+            
+            var currentPassword = currentPasswordInput.value;
+            var newPassword = newPasswordInput.value;
+            var confirmPassword = confirmPasswordInput.value;
+            
+            if (newPassword.length !== 4) {
+                showNotification('❌ رمز جدید باید ۴ رقمی باشد', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('❌ رمز جدید و تکرار آن مطابقت ندارند', 'error');
+                return;
+            }
+            
+            var savedPassword = localStorage.getItem('journalPassword');
+            
+            if (savedPassword && savedPassword !== 'null' && savedPassword !== 'undefined' && savedPassword !== '') {
+                if (currentPassword !== savedPassword) {
+                    showNotification('❌ رمز عبور فعلی نادرست است', 'error');
+                    return;
+                }
+            }
+            
+            localStorage.setItem('journalPassword', newPassword);
+            hidePasswordSettings();
+            showNotification('✅ رمز عبور با موفقیت تغییر کرد', 'success');
+        }
+
+        function exportData() {
+            createCompleteBackup();
+        }
+
+        function showRestoreModal() {
+            var modal = document.getElementById('restoreModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function hideRestoreModal() {
+            var modal = document.getElementById('restoreModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function handleFileSelect(files) {
+            if (files.length > 0) {
+                var file = files[0];
+                selectedBackupFile = file;
+                
+                var fileInfo = document.getElementById('selectedFileInfo');
+                var fileName = document.getElementById('fileName');
+                if (fileInfo && fileName) {
+                    fileInfo.style.display = 'block';
+                    fileName.textContent = file.name;
+                }
+            }
+        }
+
+        function restoreCompleteBackup() {
+            if (!selectedBackupFile) {
+                showNotification('لطفاً ابتدا یک فایل پشتیبان انتخاب کنید', 'error');
+                return;
+            }
+            
+            if (!confirm('⚠️ هشدار!\nبازگردانی داده‌ها تمام اطلاعات فعلی را حذف می‌کند.\nآیا مطمئن هستید؟')) {
+                return;
+            }
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    
+                    entries = data.entries || [];
+                    currentRow = data.currentRow || 1;
+                    categories = data.categories || (defaultCategoriesByLang[currentLanguage] || defaultCategoriesByLang['fa']);
+                    suggestedWords = data.suggestedWords || (defaultWordsByLang[currentLanguage] || defaultWordsByLang['fa']);
+                    journalName = data.journalName || t('journalTitle');
+                    journalSubtitle = data.journalSubtitle || t('journalSubtitle');
+                    entryHistory = data.entryHistory || {};
+                    
+                    if (data.currency) {
+                        currency = data.currency;
+                    }
+                    
+                    if (data.currencyRates) {
+                        currencyRates = data.currencyRates;
+                    }
+                    
+                    safeSaveData();
+                    localStorage.setItem('journalCategories', JSON.stringify(categories));
+                    localStorage.setItem('suggestedWords', JSON.stringify(suggestedWords));
+                    localStorage.setItem('journalName', journalName);
+                    localStorage.setItem('journalSubtitle', journalSubtitle);
+                    localStorage.setItem('journalCurrency', currency);
+                    localStorage.setItem('currencyRates', JSON.stringify(currencyRates));
+                    localStorage.setItem('entryHistory', JSON.stringify(entryHistory));
+                    
+                    document.getElementById('journalTitle').textContent = journalName;
+                    document.getElementById('journalSubtitle').textContent = journalSubtitle;
+                    updateDisplay();
+                    updateBalance();
+                    updateCategoriesDropdown();
+                    updateCurrencyDisplay();
+                    
+                    hideRestoreModal();
+                    showNotification('✅ داده‌ها با موفقیت بازگردانی شدند', 'success');
+                    
+                } catch (error) {
+                    console.error('خطا در بازگردانی:', error);
+                    showNotification('❌ خطا در بازگردانی داده‌ها. فایل معتبر نیست', 'error');
+                }
+            };
+            
+            reader.readAsText(selectedBackupFile);
+        }
+
+        function createCompleteBackup() {
+            var data = {
+                entries: entries,
+                currentRow: currentRow,
+                categories: categories,
+                suggestedWords: suggestedWords,
+                journalName: journalName,
+                journalSubtitle: journalSubtitle,
+                currency: currency,
+                currencyRates: currencyRates,
+                entryHistory: entryHistory,
+                version: DATA_VERSION,
+                exportDate: new Date().toISOString()
+            };
+            
+            var dataStr = JSON.stringify(data, null, 2);
+            var dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            var exportFileDefaultName = 'دفتر-روزنامه-' + new Date().toISOString().slice(0,10) + '.json';
+            
+            var linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('✅ داده‌ها با موفقیت صادر شدند', 'success');
+        }
+
+        function debouncedSave() {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            
+            saveTimeout = setTimeout(() => {
+                if (safeSaveData()) {
+                    showSaveStatus('✅ ذخیره شد');
+                }
+            }, 1000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 24px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================== راه‌اندازی برنامه ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            safeLoadData();
+            checkPassword();
+            
+            setTimeout(function() {
+                applyTranslations();
+                initializeLanguageDisplay();
+                updateCategoriesDropdown();
+                updateDateFormatDisplay();
+                updateCurrencyDisplay();
+                
+                updateDisplay();
+                updateBalance();
+                
+                startClock();
+            }, 100);
+            
+            setInterval(function() {
+                safeSaveData();
+            }, 30000);
+            
+            // اضافه کردن event listeners برای پیشنهادات
+            var descInput = document.getElementById('editDescription');
+            if (descInput) {
+                descInput.addEventListener('input', showSuggestions);
+                descInput.addEventListener('keydown', function(e) {
+                    var suggestions = document.getElementById('descriptionSuggestions');
+                    if (!suggestions || !suggestions.classList.contains('show')) return;
+                    
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        var newIndex = selectedSuggestionIndex + 1;
+                        if (newIndex >= currentSuggestions.length) newIndex = 0;
+                        setActiveSuggestion(newIndex);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        var newIndex = selectedSuggestionIndex - 1;
+                        if (newIndex < 0) newIndex = currentSuggestions.length - 1;
+                        setActiveSuggestion(newIndex);
+                    } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+                        e.preventDefault();
+                        selectSuggestion(selectedSuggestionIndex);
+                    } else if (e.key === 'Escape') {
+                        hideSuggestions();
+                    }
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                var suggestions = document.getElementById('descriptionSuggestions');
+                var descInput = document.getElementById('editDescription');
+                var arrow = document.querySelector('.dropdown-arrow');
+                
+                if (suggestions && suggestions.classList.contains('show') &&
+                    e.target !== descInput && e.target !== arrow &&
+                    !arrow.contains(e.target) && !suggestions.contains(e.target)) {
+                    hideSuggestions();
+                }
+            });
+        });
+
+        // بستن مودال با کلیک خارج از آن
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+            
+            const languageSelector = document.querySelector('.language-selector');
+            const languageDropdown = document.getElementById('languageDropdown');
+            
+            if (languageSelector && languageDropdown && 
+                !languageSelector.contains(event.target) && 
+                languageDropdown.classList.contains('show')) {
+                languageDropdown.classList.remove('show');
+                const button = document.querySelector('.language-button');
+                if (button) {
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            }
+        };
+
+    </script>
+</body>
+</html>
